@@ -5,10 +5,12 @@ on:
     paths:
       - "**.c"
       - "**.h"
+      - "meson.build"
   pull_request:
     paths:
       - "**.c"
       - "**.h"
+      - "meson.build"
 
 jobs:
   build:
@@ -17,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        meson_version: ["1.2.0", "1.3.0", "1.4.0"]
+        meson_version: ["1.5.0"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

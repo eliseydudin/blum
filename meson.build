@@ -4,7 +4,13 @@ sources = ['src/blum.c', 'src/map.c', 'src/object.c', 'src/vec.c']
 
 dependencies = []
 
-blum = library('blum', dependencies: dependencies, sources: sources, install: true)
+blum = library(
+    'blum',
+    dependencies: dependencies,
+    sources: sources,
+    install: true,
+    include_directories: include_directories('blum'),
+)
 
 if get_option('test')
     subdir('tests')
