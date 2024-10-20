@@ -4,3 +4,9 @@
 # Meson Build Directory
 builddir/
 build/
+
+# Meson `compile_commands.json` (For clangd)
+compile_commands.json
+
+# Clangd Cache
+.cache/

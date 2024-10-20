@@ -1,6 +1,7 @@
 #ifndef __BLUM_H__
 #define __BLUM_H__
 
+#include <blum/map.h>
 #include <stdlib.h>
 
 typedef struct object (*method_t)(struct object *, struct object *);
