@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
+
 #define vec_unpack_(v) \
   (char **)&(v)->data, &(v)->length, &(v)->capacity, sizeof(*(v)->data)
 
@@ -90,12 +92,15 @@
     } \
   } while (0)
 
-int vec_expand_(char **data, int *length, int *capacity, int memsz);
-int vec_reserve_(char **data, int *length, int *capacity, int memsz, int n);
-int vec_reserve_po2_(char **data, int *length, int *capacity, int memsz, int n);
-int vec_compact_(char **data, int *length, int *capacity, int memsz);
-int vec_insert_(char **data, int *length, int *capacity, int memsz, int idx);
-void vec_splice_(
+int B_EXPORT vec_expand_(char **data, int *length, int *capacity, int memsz);
+int B_EXPORT
+vec_reserve_(char **data, int *length, int *capacity, int memsz, int n);
+int B_EXPORT
+vec_reserve_po2_(char **data, int *length, int *capacity, int memsz, int n);
+int B_EXPORT vec_compact_(char **data, int *length, int *capacity, int memsz);
+int B_EXPORT
+vec_insert_(char **data, int *length, int *capacity, int memsz, int idx);
+void B_EXPORT vec_splice_(
     char **data,
     int *length,
     int *capacity,
@@ -103,7 +108,7 @@ void vec_splice_(
     int start,
     int count
 );
-void vec_swapsplice_(
+void B_EXPORT vec_swapsplice_(
     char **data,
     int *length,
     int *capacity,
@@ -111,7 +116,7 @@ void vec_swapsplice_(
     int start,
     int count
 );
-void vec_swap_(
+void B_EXPORT vec_swap_(
     char **data,
     int *length,
     int *capacity,
