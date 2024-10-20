@@ -92,15 +92,15 @@
     } \
   } while (0)
 
-int B_EXPORT vec_expand_(char **data, int *length, int *capacity, int memsz);
-int B_EXPORT
+B_EXPORT int vec_expand_(char **data, int *length, int *capacity, int memsz);
+B_EXPORT int
 vec_reserve_(char **data, int *length, int *capacity, int memsz, int n);
-int B_EXPORT
+B_EXPORT int
 vec_reserve_po2_(char **data, int *length, int *capacity, int memsz, int n);
-int B_EXPORT vec_compact_(char **data, int *length, int *capacity, int memsz);
-int B_EXPORT
+B_EXPORT int vec_compact_(char **data, int *length, int *capacity, int memsz);
+B_EXPORT int
 vec_insert_(char **data, int *length, int *capacity, int memsz, int idx);
-void B_EXPORT vec_splice_(
+B_EXPORT void vec_splice_(
     char **data,
     int *length,
     int *capacity,
@@ -108,7 +108,7 @@ void B_EXPORT vec_splice_(
     int start,
     int count
 );
-void B_EXPORT vec_swapsplice_(
+B_EXPORT void vec_swapsplice_(
     char **data,
     int *length,
     int *capacity,
@@ -116,7 +116,7 @@ void B_EXPORT vec_swapsplice_(
     int start,
     int count
 );
-void B_EXPORT vec_swap_(
+B_EXPORT void vec_swap_(
     char **data,
     int *length,
     int *capacity,

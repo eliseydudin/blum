@@ -14,14 +14,14 @@ typedef struct b_obj {
 } b_obj;
 
 /// Create a new `b_obj *` of type `object`
-b_obj B_EXPORT *b_obj_new(void);
+B_EXPORT b_obj *b_obj_new(void);
 /// Deallocate the given object. Don't forget to free the `opaque_data` field yourself
-void B_EXPORT b_obj_del(b_obj *);
+B_EXPORT void b_obj_del(b_obj *);
 /// Checks if the method exists
-bool B_EXPORT b_hasmeth(b_obj *, const char *);
+B_EXPORT bool b_hasmeth(b_obj *, const char *);
 /// Call a method without giving args
-b_obj B_EXPORT *b_call(b_obj *, const char *);
+B_EXPORT b_obj *b_call(b_obj *, const char *);
 /// Add a method to an object
-void B_EXPORT b_obj_add_method(b_obj *, const char *, b_obj_meth);
+B_EXPORT void b_obj_add_method(b_obj *, const char *, b_obj_meth);
 
 #endif

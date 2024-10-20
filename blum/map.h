@@ -38,9 +38,9 @@ typedef struct {
   ((m)->tmp = (value), map_set_(&(m)->base, key, &(m)->tmp, sizeof((m)->tmp)))
 #define map_remove(m, key) map_remove_(&(m)->base, key)
 
-void B_EXPORT map_deinit_(map_base_t *m);
-void B_EXPORT *map_get_(map_base_t *m, const char *key);
-int B_EXPORT map_set_(map_base_t *m, const char *key, void *value, int vsize);
-void B_EXPORT map_remove_(map_base_t *m, const char *key);
+B_EXPORT void map_deinit_(map_base_t *m);
+B_EXPORT void *map_get_(map_base_t *m, const char *key);
+B_EXPORT int map_set_(map_base_t *m, const char *key, void *value, int vsize);
+B_EXPORT void map_remove_(map_base_t *m, const char *key);
 
 #endif
