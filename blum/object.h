@@ -1,8 +1,8 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
 
-#include <blum/map.h>
-#include <blum/nums.h>
+#include "map.h"
+#include "nums.h"
 
 typedef struct b_obj *(*b_obj_meth)(struct b_obj *self, struct b_obj *args);
 
