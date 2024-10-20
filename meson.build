@@ -1,9 +1,6 @@
 project('blum', 'c')
 
-sources = [
-    'src/blum.c',
-    'src/map.c',
-]
+sources = ['src/blum.c', 'src/map.c', 'src/object.c']
 
 dependencies = []
 
