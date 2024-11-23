@@ -14,19 +14,10 @@ impl<'a> Lexer<'a> {
 
     pub fn parse(&mut self) {
         loop {
-            let mut char = match self.chars.next() {
-                Some(d) => d,
+            let char = match self.skip_whitespace() {
+                Some(c) => c,
                 None => break,
             };
-
-            if char.is_whitespace() {
-                while let Some(c) = self.chars.next() {
-                    if !c.is_whitespace() {
-                        char = c;
-                        break;
-                    }
-                }
-            }
 
             if let Some(tk) = Self::try_char(char) {
                 self.tokens.push(tk);
@@ -39,6 +30,18 @@ impl<'a> Lexer<'a> {
                 self.try_identifier(char);
             }
         }
+    }
+
+    pub fn skip_whitespace(&mut self) -> Option<char> {
+        while let Some(c) = self.chars.next() {
+            if c.is_whitespace() {
+                continue;
+            }
+
+            return Some(c);
+        }
+
+        None
     }
 
     pub fn try_char(ch: char) -> Option<Token> {
