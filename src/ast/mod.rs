@@ -86,6 +86,8 @@ impl Token {
                 while let Some(ch) = chars.next() {
                     if ch.is_alphanumeric() {
                         data.push(ch);
+                    } else if ch.is_whitespace() {
+                        break;
                     } else {
                         if let Some(t) = Self::try_char(ch) {
                             let data = Some(data.clone());
@@ -94,7 +96,7 @@ impl Token {
                             tokens.push(Token { data, token_type });
                             tokens.push(t);
                         } else {
-                            tokens.push(Token::error("unknown integer literal"));
+                            tokens.push(Token::error("unknown string literal"));
                         }
 
                         continue 'main_loop;
