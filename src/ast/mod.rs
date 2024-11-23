@@ -66,6 +66,8 @@ impl Token {
 
                             tokens.push(Token { data, token_type });
                             tokens.push(t);
+                        } else {
+                            tokens.push(Token::error("unknown integer literal"));
                         }
 
                         continue 'main_loop;
