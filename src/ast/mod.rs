@@ -1,3 +1,5 @@
+use std::str::Chars;
+
 #[derive(Clone, Copy, Debug)]
 pub enum Operand {
     Plus,  // +
@@ -39,7 +41,7 @@ impl Token {
         let source: String = source.into();
         let mut chars = source.chars();
 
-        'main_loop: loop {
+        loop {
             let mut char = match chars.next() {
                 Some(d) => d,
                 None => break,
@@ -60,60 +62,9 @@ impl Token {
             }
 
             if char.is_numeric() {
-                let mut data = String::new();
-                data.push(char);
-
-                while let Some(ch) = chars.next() {
-                    if ch.is_numeric() {
-                        data.push(ch);
-                    } else if ch.is_whitespace() {
-                        break;
-                    } else {
-                        if let Some(t) = Self::try_char(ch) {
-                            let data = Some(data.clone());
-                            let token_type = TokenType::Integer;
-
-                            tokens.push(Token { data, token_type });
-                            tokens.push(t);
-                        } else {
-                            tokens.push(Token::error("unknown integer literal"));
-                        }
-
-                        continue 'main_loop;
-                    }
-                }
-
-                let data = Some(data);
-                let token_type = TokenType::Integer;
-
-                tokens.push(Token { data, token_type })
+                Self::try_integer(&mut tokens, &mut chars, char);
             } else if char.is_alphabetic() {
-                let mut data = String::new();
-                data.push(char);
-
-                while let Some(ch) = chars.next() {
-                    if ch.is_alphanumeric() {
-                        data.push(ch);
-                    } else if ch.is_whitespace() {
-                        break;
-                    } else {
-                        if let Some(t) = Self::try_char(ch) {
-                            let data = Some(data.clone());
-                            let token_type = TokenType::Identifier;
-
-                            tokens.push(Token { data, token_type });
-                            tokens.push(t);
-                        } else {
-                            tokens.push(Token::error("unknown string literal"));
-                        }
-
-                        continue 'main_loop;
-                    }
-                }
-
-                let token_type = TokenType::Identifier;
-                let data = Some(data);
-                tokens.push(Token { token_type, data })
+                Self::try_identifier(&mut tokens, &mut chars, char);
             }
         }
 
@@ -138,5 +89,63 @@ impl Token {
         };
 
         return Some(Token { token_type, data });
+    }
+
+    pub fn try_integer(tokens: &mut Vec<Token>, chars: &mut Chars<'_>, init_char: char) {
+        let mut data = String::new();
+        data.push(init_char);
+
+        while let Some(ch) = chars.next() {
+            if ch.is_numeric() {
+                data.push(ch);
+            } else if ch.is_whitespace() {
+                break;
+            } else {
+                if let Some(t) = Self::try_char(ch) {
+                    let data = Some(data.clone());
+                    let token_type = TokenType::Integer;
+
+                    tokens.push(Token { data, token_type });
+                    tokens.push(t);
+                } else {
+                    tokens.push(Token::error("unknown integer literal"));
+                }
+
+                return;
+            }
+        }
+
+        let token_type = TokenType::Integer;
+        let data = Some(data);
+        tokens.push(Token { token_type, data })
+    }
+
+    pub fn try_identifier(tokens: &mut Vec<Token>, chars: &mut Chars<'_>, init_char: char) {
+        let mut data = String::new();
+        data.push(init_char);
+
+        while let Some(ch) = chars.next() {
+            if ch.is_alphanumeric() {
+                data.push(ch);
+            } else if ch.is_whitespace() {
+                break;
+            } else {
+                if let Some(t) = Self::try_char(ch) {
+                    let data = Some(data.clone());
+                    let token_type = TokenType::Identifier;
+
+                    tokens.push(Token { data, token_type });
+                    tokens.push(t);
+                } else {
+                    tokens.push(Token::error("unknown string literal"));
+                }
+
+                return;
+            }
+        }
+
+        let token_type = TokenType::Identifier;
+        let data = Some(data);
+        tokens.push(Token { token_type, data })
     }
 }
