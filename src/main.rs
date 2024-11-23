@@ -1,3 +1,6 @@
+pub mod ast;
+
 fn main() {
-    println!("Hello, world!");
+    let tokens = ast::Token::parse_string("10+20 - 30");
+    println!("{:#?}", tokens)
 }
