@@ -1,7 +1,15 @@
 #[derive(Clone, Copy, Debug)]
 pub enum Operand {
-    Plus,
-    Minus,
+    Plus,  // +
+    Minus, // -
+    Mult,  // *
+    Div,   // /
+    Mod,   // %
+
+    Dot, // .
+
+    LParen, // (
+    RParen, // )
 }
 
 #[derive(Clone, Debug)]
@@ -117,6 +125,15 @@ impl Token {
         let token_type = match ch {
             '+' => TokenType::Operand(Operand::Plus),
             '-' => TokenType::Operand(Operand::Minus),
+            '*' => TokenType::Operand(Operand::Mult),
+            '/' => TokenType::Operand(Operand::Div),
+            '%' => TokenType::Operand(Operand::Mod),
+
+            '.' => TokenType::Operand(Operand::Dot),
+
+            '(' => TokenType::Operand(Operand::LParen),
+            ')' => TokenType::Operand(Operand::RParen),
+
             _ => return None,
         };
 
