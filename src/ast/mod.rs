@@ -30,7 +30,7 @@ impl Token {
         let source: String = source.into();
         let mut chars = source.chars();
 
-        loop {
+        'main_loop: loop {
             let mut char = match chars.next() {
                 Some(d) => d,
                 None => break,
@@ -45,15 +45,8 @@ impl Token {
                 }
             }
 
-            if char == '-' {
-                let token_type = TokenType::Operand(Operand::Minus);
-                let data = None;
-                tokens.push(Token { token_type, data });
-                continue;
-            } else if char == '+' {
-                let token_type = TokenType::Operand(Operand::Plus);
-                let data = None;
-                tokens.push(Token { token_type, data });
+            if let Some(tk) = Self::try_char(char) {
+                tokens.push(tk);
                 continue;
             }
 
@@ -64,9 +57,18 @@ impl Token {
                 while let Some(ch) = chars.next() {
                     if ch.is_numeric() {
                         data.push(ch);
-                    } else {
-                        //tokens.push(Token::error("unknown integer"));
+                    } else if ch.is_whitespace() {
                         break;
+                    } else {
+                        if let Some(t) = Self::try_char(ch) {
+                            let data = Some(data.clone());
+                            let token_type = TokenType::Integer;
+
+                            tokens.push(Token { data, token_type });
+                            tokens.push(t);
+                        }
+
+                        continue 'main_loop;
                     }
                 }
 
@@ -78,5 +80,16 @@ impl Token {
         }
 
         return tokens;
+    }
+
+    pub fn try_char(ch: char) -> Option<Token> {
+        let data = None;
+        let token_type = match ch {
+            '+' => TokenType::Operand(Operand::Plus),
+            '-' => TokenType::Operand(Operand::Minus),
+            _ => return None,
+        };
+
+        return Some(Token { token_type, data });
     }
 }
