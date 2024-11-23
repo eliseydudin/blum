@@ -7,6 +7,7 @@ pub enum Operand {
 #[derive(Clone, Debug)]
 pub enum TokenType {
     Integer,
+    Identifier,
     Operand(Operand),
     Error(&'static str),
 }
@@ -78,6 +79,31 @@ impl Token {
                 let token_type = TokenType::Integer;
 
                 tokens.push(Token { data, token_type })
+            } else if char.is_alphabetic() {
+                let mut data = String::new();
+                data.push(char);
+
+                while let Some(ch) = chars.next() {
+                    if ch.is_alphanumeric() {
+                        data.push(ch);
+                    } else {
+                        if let Some(t) = Self::try_char(ch) {
+                            let data = Some(data.clone());
+                            let token_type = TokenType::Identifier;
+
+                            tokens.push(Token { data, token_type });
+                            tokens.push(t);
+                        } else {
+                            tokens.push(Token::error("unknown integer literal"));
+                        }
+
+                        continue 'main_loop;
+                    }
+                }
+
+                let token_type = TokenType::Identifier;
+                let data = Some(data);
+                tokens.push(Token { token_type, data })
             }
         }
 
