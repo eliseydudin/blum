@@ -19,19 +19,17 @@ impl<'a> Lexer<'a> {
                 None => break,
             };
 
-            if let Some(tk) = Self::try_char(char) {
-                self.tokens.push(tk);
-                continue;
-            }
-
             if char == '"' {
                 self.try_string();
-            }
-
-            if char.is_numeric() {
+            } else if char.is_numeric() {
                 self.try_integer(char);
             } else if char.is_alphabetic() {
                 self.try_identifier(char);
+            } else {
+                match Self::try_char(char) {
+                    Some(tk) => self.tokens.push(tk),
+                    None => self.tokens.push(Token::error("unknown character")),
+                };
             }
         }
     }
@@ -58,9 +56,15 @@ impl<'a> Lexer<'a> {
             '%' => TokenType::Operand(Operand::Mod),
 
             '.' => TokenType::Operand(Operand::Dot),
+            ',' => TokenType::Operand(Operand::Coma),
+            ':' => TokenType::Operand(Operand::Colon),
+            ';' => TokenType::Operand(Operand::Semicolon),
 
             '(' => TokenType::Operand(Operand::LParen),
             ')' => TokenType::Operand(Operand::RParen),
+
+            '{' => TokenType::Operand(Operand::LFigure),
+            '}' => TokenType::Operand(Operand::RFigure),
 
             _ => return None,
         };

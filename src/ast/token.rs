@@ -6,10 +6,16 @@ pub enum Operand {
     Div,   // /
     Mod,   // %
 
-    Dot, // .
+    Dot,       // .
+    Coma,      // ,
+    Colon,     // :
+    Semicolon, // ;
 
     LParen, // (
     RParen, // )
+
+    LFigure, // {
+    RFigure, // }
 }
 
 #[derive(Clone, Debug)]
