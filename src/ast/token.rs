@@ -1,4 +1,24 @@
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Keyword {
+    Fn,
+    If,
+    Return,
+}
+
+impl TryFrom<String> for Keyword {
+    type Error = ();
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        match value.as_str() {
+            "fn" => Ok(Self::Fn),
+            "if" => Ok(Self::If),
+            "return" => Ok(Self::Return),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Operand {
     Plus,  // +
     Minus, // -
@@ -26,12 +46,13 @@ pub enum Operand {
     Not, // !
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenType {
     Integer,
     String,
     Identifier,
     Operand(Operand),
+    Keyword(Keyword),
     Error(&'static str),
 }
 

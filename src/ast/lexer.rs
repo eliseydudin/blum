@@ -1,4 +1,4 @@
-use super::{Operand, Token, TokenType};
+use super::{token::Keyword, Operand, Token, TokenType};
 use std::str::Chars;
 
 pub struct Lexer<'a> {
@@ -120,8 +120,11 @@ impl<'a> Lexer<'a> {
                 break;
             } else {
                 if let Some(t) = Self::try_char(ch) {
-                    let data = Some(data.clone());
-                    let token_type = TokenType::Identifier;
+                    let (data, token_type) = if let Ok(kw) = Keyword::try_from(data.clone()) {
+                        (None, TokenType::Keyword(kw))
+                    } else {
+                        (Some(data), TokenType::Identifier)
+                    };
 
                     self.tokens.push(Token { data, token_type });
                     self.tokens.push(t);
@@ -133,8 +136,12 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        let token_type = TokenType::Identifier;
-        let data = Some(data);
+        let (data, token_type) = if let Ok(kw) = Keyword::try_from(data.clone()) {
+            (None, TokenType::Keyword(kw))
+        } else {
+            (Some(data), TokenType::Identifier)
+        };
+
         self.tokens.push(Token { token_type, data })
     }
 
