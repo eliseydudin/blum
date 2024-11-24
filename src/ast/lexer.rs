@@ -66,6 +66,14 @@ impl<'a> Lexer<'a> {
             '{' => TokenType::Operand(Operand::LFigure),
             '}' => TokenType::Operand(Operand::RFigure),
 
+            '<' => TokenType::Operand(Operand::Less),
+            '>' => TokenType::Operand(Operand::More),
+            '=' => TokenType::Operand(Operand::Eq),
+
+            '&' => TokenType::Operand(Operand::And),
+            '|' => TokenType::Operand(Operand::Or),
+            '!' => TokenType::Operand(Operand::Not),
+
             _ => return None,
         };
 

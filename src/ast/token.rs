@@ -16,6 +16,14 @@ pub enum Operand {
 
     LFigure, // {
     RFigure, // }
+
+    Less, // <
+    More, // >
+    Eq,   // =
+
+    And, // &
+    Or,  // |
+    Not, // !
 }
 
 #[derive(Clone, Debug)]
