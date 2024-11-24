@@ -15,6 +15,7 @@ pub enum Operand {
 #[derive(Clone, Debug)]
 pub enum TokenType {
     Integer,
+    String,
     Identifier,
     Operand(Operand),
     Error(&'static str),

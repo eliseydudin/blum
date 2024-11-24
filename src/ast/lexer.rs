@@ -24,6 +24,10 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
+            if char == '"' {
+                self.try_string();
+            }
+
             if char.is_numeric() {
                 self.try_integer(char);
             } else if char.is_alphabetic() {
@@ -120,6 +124,26 @@ impl<'a> Lexer<'a> {
         let token_type = TokenType::Identifier;
         let data = Some(data);
         self.tokens.push(Token { token_type, data })
+    }
+
+    pub fn try_string(&mut self) {
+        let mut data = String::new();
+        while let Some(ch) = self.chars.next() {
+            if ch == '"' {
+                let token_type = TokenType::String;
+                let data = Some(data);
+                let tk = Token { token_type, data };
+
+                self.tokens.push(tk);
+                return;
+            }
+
+            data.push(ch);
+        }
+
+        let token_type = TokenType::Error("'\"' was never closed");
+        let data = None;
+        self.tokens.push(Token { data, token_type });
     }
 
     pub fn finish(self) -> Vec<Token> {
