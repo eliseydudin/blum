@@ -1,4 +1,4 @@
-use super::{Lexer, Operand, Token, TokenType};
+use super::{token::Keyword, AstError, Function, Lexer, Operand, Result, Token, TokenType};
 
 #[derive(Clone, Debug)]
 pub enum Value {
@@ -16,11 +16,12 @@ pub enum Expr {
     Block {
         exprs: Vec<Expr>,
     },
-    Tuple {
-        exprs: Vec<Expr>,
+    Function {
+        name: String,
+        params: Vec<String>,
+        rettype: String,
+        body: Vec<Expr>,
     },
-    Value(Value),
-    VarRef(String),
 }
 
 pub struct Parser {
@@ -48,5 +49,44 @@ impl Parser {
                 _ => (),
             };
         }
+    }
+
+    pub fn try_keyword(&mut self, keyword: Keyword) -> Result<Expr> {
+        match keyword {
+            Keyword::Fn => self.try_function(),
+            _ => todo!(),
+        }
+    }
+
+    pub fn try_function(&mut self) -> Result<Expr> {
+        let identifier = self
+            .tokens
+            .next()
+            .ok_or(AstError::Function(Function::NoIdentifier))?;
+
+        let name = identifier
+            .data
+            .ok_or(AstError::Function(Function::NoIdentifier))?;
+
+        let lparen = self
+            .tokens
+            .next()
+            .ok_or(AstError::Function(Function::NoParenthesis))?;
+        if lparen.token_type != TokenType::Operand(Operand::LParen) {
+            return Err(AstError::Function(Function::NoParenthesis));
+        }
+
+        let params = vec![];
+        let rettype = String::new();
+        let body = vec![];
+
+        let expr = Expr::Function {
+            name,
+            params,
+            rettype,
+            body,
+        };
+
+        Ok(expr)
     }
 }
