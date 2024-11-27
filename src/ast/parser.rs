@@ -34,7 +34,8 @@ pub enum Expr {
 
 #[derive(Debug, Clone)]
 pub struct Parser {
-    pub tokens: std::vec::IntoIter<Token>,
+    pub tokens: Vec<Token>,
+    pub current: usize, // the current used to access the elements
     pub ast: Vec<Expr>,
     pub errors: Vec<AstError>,
 }
@@ -55,22 +56,22 @@ impl Parser {
         let mut lexer = Lexer::new(source);
         lexer.parse();
         let tokens = lexer.finish();
-        let tokens = tokens.into_iter();
 
         let ast = Vec::new();
         let errors = Vec::new();
+        let current = 0usize;
 
         Self {
             tokens,
             ast,
             errors,
+            current,
         }
     }
 
     pub fn parse(&mut self) {
-        let mut tokens = self.tokens.clone();
-
-        for token in &mut tokens {
+        while self.current < self.tokens.len() {
+            let token = &self.tokens[self.current];
             match token.token_type {
                 TokenType::Error(err) => eprintln!("error: {err}"),
                 TokenType::Keyword(kw) => {
@@ -82,6 +83,8 @@ impl Parser {
                 }
                 _ => (),
             };
+
+            self.current += 1;
         }
     }
 
@@ -163,7 +166,6 @@ impl Parser {
             result.insert(next.0, next.1);
 
             let next = self
-                .tokens
                 .next()
                 .ok_or(AstError::Function(Function::ParamError))?;
 
@@ -202,12 +204,12 @@ impl Parser {
 
     pub fn await_token(&mut self, op: impl Into<TokenType>, f: fn() -> AstError) -> Result<Token> {
         let ttype: TokenType = op.into();
-        let tk = self.tokens.next();
+        let tk = self.next();
 
         match tk {
             Some(data) => {
                 if data.token_type == ttype {
-                    return Ok(data);
+                    return Ok(data.clone());
                 } else {
                     return Err(f());
                 }
@@ -218,11 +220,16 @@ impl Parser {
 
     pub fn try_block(&mut self) -> Result<Expr> {
         let block = Expr::Block { exprs: vec![] };
-        while let Some(n) = self.tokens.next() {
+        while let Some(n) = self.next() {
             if n.token_type == TokenType::Operand(Operand::RFigure) {
                 break;
             }
         }
         Ok(block)
+    }
+
+    pub fn next(&mut self) -> Option<Token> {
+        self.current += 1;
+        self.tokens.get(self.current).cloned()
     }
 }
