@@ -4,6 +4,7 @@ use std::{error::Error, fmt::Display};
 pub enum Function {
     NoIdentifier,
     NoParenthesis,
+    ParamError,
 }
 
 #[derive(Debug)]

@@ -1,4 +1,5 @@
 use super::{token::Keyword, AstError, Function, Lexer, Operand, Result, Token, TokenType};
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub enum Value {
@@ -18,7 +19,7 @@ pub enum Expr {
     },
     Function {
         name: String,
-        params: Vec<String>,
+        params: HashMap<String, String>,
         rettype: String,
         body: Vec<Expr>,
     },
@@ -76,7 +77,7 @@ impl Parser {
             return Err(AstError::Function(Function::NoParenthesis));
         }
 
-        let params = vec![];
+        let params = self.try_function_params(Operand::RParen)?;
         let rettype = String::new();
         let body = vec![];
 
@@ -88,5 +89,64 @@ impl Parser {
         };
 
         Ok(expr)
+    }
+
+    pub fn try_function_next_parameter(&mut self) -> Result<(String, String)> {
+        let param = self
+            .tokens
+            .next()
+            .ok_or(AstError::Function(Function::ParamError))?;
+
+        let param = if param.token_type == TokenType::Identifier {
+            param.data.ok_or(AstError::Function(Function::ParamError))?
+        } else {
+            return Err(AstError::Function(Function::ParamError));
+        };
+
+        let colon = self
+            .tokens
+            .next()
+            .ok_or(AstError::Function(Function::ParamError))?;
+
+        if colon.token_type != TokenType::Operand(Operand::Colon) {
+            return Err(AstError::Function(Function::ParamError));
+        }
+
+        let ptype = self
+            .tokens
+            .next()
+            .ok_or(AstError::Function(Function::ParamError))?
+            .data
+            .ok_or(AstError::Function(Function::ParamError))?;
+
+        Ok((param, ptype))
+    }
+
+    pub fn try_function_params(&mut self, end: Operand) -> Result<HashMap<String, String>> {
+        let mut result = HashMap::new();
+
+        loop {
+            let next = self.try_function_next_parameter()?;
+            result.insert(next.0, next.1);
+
+            let next = self
+                .tokens
+                .next()
+                .ok_or(AstError::Function(Function::ParamError))?;
+
+            if let TokenType::Operand(op) = next.token_type {
+                if op == end {
+                    break;
+                } else if op == Operand::Coma {
+                    continue;
+                } else {
+                    return Err(AstError::Function(Function::ParamError));
+                }
+            } else {
+                return Err(AstError::Function(Function::ParamError));
+            }
+        }
+
+        Ok(result)
     }
 }
