@@ -107,8 +107,8 @@ impl Parser {
     pub fn try_keyword(&mut self, keyword: Keyword) -> Result<Expr> {
         let expr = match keyword {
             Keyword::Fn => {
-                let res = self.try_function()?;
-                res
+                
+                self.try_function()?
             }
             _ => Expr::Todo,
         };
@@ -129,7 +129,7 @@ impl Parser {
 
         let params = self
             .try_type_tuple(Operand::RParen)
-            .unwrap_or(HashMap::new());
+            .unwrap_or_default();
 
         let rettype = match self.try_function_return() {
             Ok(data) => data,
@@ -235,12 +235,12 @@ impl Parser {
         match tk {
             Some(data) => {
                 if data.token_type == ttype {
-                    return Ok(data.clone());
+                    Ok(data.clone())
                 } else {
-                    return Err(error);
+                    Err(error)
                 }
             }
-            None => return Err(error),
+            None => Err(error),
         }
     }
 

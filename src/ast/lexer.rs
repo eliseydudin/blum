@@ -35,7 +35,7 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn skip_whitespace(&mut self) -> Option<char> {
-        while let Some(c) = self.chars.next() {
+        for c in self.chars.by_ref() {
             if c.is_whitespace() {
                 continue;
             }
@@ -87,7 +87,7 @@ impl<'a> Lexer<'a> {
             }
         };
 
-        return Some(Token { token_type, data });
+        Some(Token { token_type, data })
     }
 
     pub fn try_integer(&mut self, curr: char) {
@@ -157,7 +157,7 @@ impl<'a> Lexer<'a> {
 
     pub fn try_string(&mut self) {
         let mut data = String::new();
-        while let Some(ch) = self.chars.next() {
+        for ch in self.chars.by_ref() {
             if ch == '"' {
                 let token_type = TokenType::String;
                 let data = Some(data);

@@ -56,9 +56,9 @@ pub enum TokenType {
     Error(&'static str),
 }
 
-impl Into<TokenType> for Operand {
-    fn into(self) -> TokenType {
-        TokenType::Operand(self)
+impl From<Operand> for TokenType {
+    fn from(val: Operand) -> Self {
+        TokenType::Operand(val)
     }
 }
 
