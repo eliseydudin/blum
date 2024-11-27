@@ -221,8 +221,15 @@ impl Parser {
         op: impl Into<TokenType>,
         data: impl Into<AstError>,
     ) -> Result<Token> {
+        Self::await_token_ext(op, data, self.next())
+    }
+
+    pub fn await_token_ext(
+        op: impl Into<TokenType>,
+        data: impl Into<AstError>,
+        tk: Option<Token>,
+    ) -> Result<Token> {
         let ttype: TokenType = op.into();
-        let tk = self.next();
         let error: AstError = data.into();
 
         match tk {
@@ -252,9 +259,24 @@ impl Parser {
         self.tokens.get(self.current).cloned()
     }
 
-    pub fn try_access(&mut self, ind: usize) -> Option<String> {
-        //let next = self.tokens.get(ind)?;
-        None
+    pub fn get(&mut self, ind: usize) -> Option<Token> {
+        self.tokens.get(ind).cloned()
+    }
+
+    pub fn try_access(&mut self, curr: Expr, ind: usize) -> Result<Expr> {
+        let _ = Self::await_token_ext(Operand::Dot, AstError::WTF, self.get(ind))?;
+        let access =
+            Self::await_token_ext(TokenType::Identifier, AstError::WTF, self.get(ind + 1))?;
+
+        let mut expr = Expr::ValueAccess(Box::new(curr), access.data.unwrap());
+        self.current += 2;
+
+        while let Ok(_next) = self.await_token(Operand::Dot, AstError::WTF) {
+            let access = self.await_token(TokenType::Identifier, AstError::WTF)?;
+            expr = Expr::ValueAccess(Box::new(expr), access.data.unwrap());
+        }
+
+        Ok(expr)
     }
 
     pub fn try_binop(&mut self) {}
