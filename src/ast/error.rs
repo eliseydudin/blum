@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Function {
     NoIdentifier,
     NoParenthesis,
@@ -9,7 +9,7 @@ pub enum Function {
     ReturnTypeError,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AstError {
     Function(Function),
     WTF, // if this was returned something bad has happened

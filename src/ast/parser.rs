@@ -29,6 +29,7 @@ pub enum Expr {
         rettype: String,
         body: Box<Expr>,
     },
+    Todo, // remove later when the parser is complete
 }
 
 #[derive(Debug, Clone)]
@@ -67,20 +68,16 @@ impl Parser {
     }
 
     pub fn parse(&mut self) {
-        let mut clone = self.clone();
-        for token in &mut self.tokens {
+        let mut tokens = self.tokens.clone();
+
+        for token in &mut tokens {
             match token.token_type {
                 TokenType::Error(err) => eprintln!("error: {err}"),
                 TokenType::Keyword(kw) => {
-                    match kw {
-                        Keyword::Fn => {
-                            let res = clone.try_function();
-                            match res {
-                                Ok(expr) => self.ast.push(expr),
-                                Err(_) => collect_to(res, &mut clone),
-                            }
-                        }
-                        _ => (),
+                    let expr = self.try_keyword(kw);
+                    match expr {
+                        Ok(data) => self.ast.push(data),
+                        Err(_) => collect_to(expr, self),
                     };
                 }
                 _ => (),
@@ -89,17 +86,21 @@ impl Parser {
     }
 
     pub fn try_keyword(&mut self, keyword: Keyword) -> Result<Expr> {
-        match keyword {
-            Keyword::Fn => self.try_function(),
-            _ => todo!(),
-        }
+        let expr = match keyword {
+            Keyword::Fn => {
+                let res = self.try_function()?;
+                res
+            }
+            _ => Expr::Todo,
+        };
+
+        Ok(expr)
     }
 
     pub fn try_function(&mut self) -> Result<Expr> {
         let identifier = self.await_token(TokenType::Identifier, || {
             AstError::Function(Function::NoIdentifier)
         })?;
-
         let name = identifier
             .data
             .ok_or(AstError::Function(Function::NoIdentifier))?;
@@ -108,8 +109,20 @@ impl Parser {
             AstError::Function(Function::NoParenthesis)
         })?;
 
-        let params = self.try_function_params(Operand::RParen)?;
-        let rettype = self.try_function_return()?;
+        let params = self
+            .try_function_params(Operand::RParen)
+            .unwrap_or(HashMap::new());
+
+        let rettype = match self.try_function_return() {
+            Ok(data) => data,
+            Err(e) => {
+                if e == AstError::Function(Function::NoReturnType) {
+                    "void".to_owned()
+                } else {
+                    return Err(e);
+                }
+            }
+        };
         let body = Box::new(self.try_block()?);
 
         let expr = Expr::Function {
@@ -189,8 +202,9 @@ impl Parser {
 
     pub fn await_token(&mut self, op: impl Into<TokenType>, f: fn() -> AstError) -> Result<Token> {
         let ttype: TokenType = op.into();
+        let tk = self.tokens.next();
 
-        match self.tokens.next() {
+        match tk {
             Some(data) => {
                 if data.token_type == ttype {
                     return Ok(data);
