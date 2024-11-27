@@ -117,16 +117,15 @@ impl Parser {
     }
 
     pub fn try_function(&mut self) -> Result<Expr> {
-        let identifier = self.await_token(TokenType::Identifier, || {
-            AstError::Function(Function::NoIdentifier)
-        })?;
+        let identifier = self.await_token(
+            TokenType::Identifier,
+            AstError::Function(Function::NoIdentifier),
+        )?;
         let name = identifier
             .data
             .ok_or(AstError::Function(Function::NoIdentifier))?;
 
-        self.await_token(Operand::LParen, || {
-            AstError::Function(Function::NoParenthesis)
-        })?;
+        self.await_token(Operand::LParen, AstError::Function(Function::NoParenthesis))?;
 
         let params = self
             .try_type_tuple(Operand::RParen)
@@ -156,18 +155,20 @@ impl Parser {
 
     pub fn try_function_next_parameter(&mut self) -> Result<(String, String)> {
         let param = self
-            .await_token(TokenType::Identifier, || {
-                AstError::Function(Function::ParamError)
-            })?
+            .await_token(
+                TokenType::Identifier,
+                AstError::Function(Function::ParamError),
+            )?
             .data
             .ok_or(AstError::Function(Function::ParamError))?;
 
-        self.await_token(Operand::Colon, || AstError::Function(Function::ParamError))?;
+        self.await_token(Operand::Colon, AstError::Function(Function::ParamError))?;
 
         let ptype = self
-            .await_token(TokenType::Identifier, || {
-                AstError::Function(Function::ParamError)
-            })?
+            .await_token(
+                TokenType::Identifier,
+                AstError::Function(Function::ParamError),
+            )?
             .data
             .ok_or(AstError::Function(Function::ParamError))?;
 
@@ -202,35 +203,37 @@ impl Parser {
     }
 
     pub fn try_function_return(&mut self) -> Result<String> {
-        self.await_token(Operand::Minus, || {
-            AstError::Function(Function::NoReturnType)
-        })?;
-        self.await_token(Operand::More, || {
-            AstError::Function(Function::ReturnTypeError)
-        })?;
+        self.await_token(Operand::Minus, AstError::Function(Function::NoReturnType))?;
+        self.await_token(Operand::More, AstError::Function(Function::ReturnTypeError))?;
         let rettype = self
-            .await_token(TokenType::Identifier, || {
-                AstError::Function(Function::ReturnTypeError)
-            })?
+            .await_token(
+                TokenType::Identifier,
+                AstError::Function(Function::ReturnTypeError),
+            )?
             .data
             .ok_or(AstError::Function(Function::ReturnTypeError))?;
 
         Ok(rettype)
     }
 
-    pub fn await_token(&mut self, op: impl Into<TokenType>, f: fn() -> AstError) -> Result<Token> {
+    pub fn await_token(
+        &mut self,
+        op: impl Into<TokenType>,
+        data: impl Into<AstError>,
+    ) -> Result<Token> {
         let ttype: TokenType = op.into();
         let tk = self.next();
+        let error: AstError = data.into();
 
         match tk {
             Some(data) => {
                 if data.token_type == ttype {
                     return Ok(data.clone());
                 } else {
-                    return Err(f());
+                    return Err(error);
                 }
             }
-            None => return Err(f()),
+            None => return Err(error),
         }
     }
 
