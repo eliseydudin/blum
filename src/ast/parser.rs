@@ -1,4 +1,7 @@
-use super::{token::Keyword, AstError, Function, Lexer, Operand, Result, Token, TokenType};
+use super::{
+    collect_to, token::Keyword, AstError, Collect, Function, Lexer, Operand, Result, Token,
+    TokenType,
+};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
@@ -28,9 +31,20 @@ pub enum Expr {
     },
 }
 
+#[derive(Debug, Clone)]
 pub struct Parser {
     pub tokens: std::vec::IntoIter<Token>,
     pub ast: Vec<Expr>,
+    pub errors: Vec<AstError>,
+}
+
+impl Collect for Parser {
+    fn collect<T>(&mut self, err: Result<T>) {
+        match err {
+            Ok(_) => (),
+            Err(e) => self.errors.push(e),
+        }
+    }
 }
 
 impl Parser {
@@ -43,13 +57,29 @@ impl Parser {
         let tokens = tokens.into_iter();
 
         let ast = Vec::new();
+        let errors = Vec::new();
 
-        Self { tokens, ast }
+        Self {
+            tokens,
+            ast,
+            errors,
+        }
     }
 
     pub fn parse(&mut self) {
+        let mut clone = self.clone();
         for token in &mut self.tokens {
             match token.token_type {
+                TokenType::Error(err) => eprintln!("error: {err}"),
+                TokenType::Keyword(kw) => {
+                    match kw {
+                        Keyword::Fn => {
+                            let err = clone.try_function();
+                            collect_to(err, &mut clone);
+                        }
+                        _ => (),
+                    };
+                }
                 _ => (),
             };
         }
