@@ -15,9 +15,11 @@ pub enum Expr {
         right: Box<Expr>,
         operand: Operand,
     },
+    // { ... }
     Block {
         exprs: Vec<Expr>,
     },
+    // fn <ident>(<param>: <ptype>, ...) -> <rettype> { ... }
     Function {
         name: String,
         params: HashMap<String, String>,
