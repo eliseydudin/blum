@@ -20,7 +20,7 @@ pub enum Expr {
     },
     // { ... }
     Block {
-        exprs: Vec<Expr>,
+        expression: Vec<Expr>,
     },
     // fn <ident>(<param>: <ptype>, ...) -> <rettype> { ... }
     Function {
@@ -113,7 +113,7 @@ impl Parser {
         })?;
 
         let params = self
-            .try_function_params(Operand::RParen)
+            .try_type_tuple(Operand::RParen)
             .unwrap_or(HashMap::new());
 
         let rettype = match self.try_function_return() {
@@ -158,7 +158,7 @@ impl Parser {
         Ok((param, ptype))
     }
 
-    pub fn try_function_params(&mut self, end: Operand) -> Result<HashMap<String, String>> {
+    pub fn try_type_tuple(&mut self, end: Operand) -> Result<HashMap<String, String>> {
         let mut result = HashMap::new();
 
         loop {
@@ -219,7 +219,7 @@ impl Parser {
     }
 
     pub fn try_block(&mut self) -> Result<Expr> {
-        let block = Expr::Block { exprs: vec![] };
+        let block = Expr::Block { expression: vec![] };
         while let Some(n) = self.next() {
             if n.token_type == TokenType::Operand(Operand::RFigure) {
                 break;
