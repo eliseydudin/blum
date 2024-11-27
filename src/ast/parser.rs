@@ -61,22 +61,17 @@ impl Parser {
     }
 
     pub fn try_function(&mut self) -> Result<Expr> {
-        let identifier = self
-            .tokens
-            .next()
-            .ok_or(AstError::Function(Function::NoIdentifier))?;
+        let identifier = self.await_token(TokenType::Identifier, || {
+            AstError::Function(Function::NoIdentifier)
+        })?;
 
         let name = identifier
             .data
             .ok_or(AstError::Function(Function::NoIdentifier))?;
 
-        let lparen = self
-            .tokens
-            .next()
-            .ok_or(AstError::Function(Function::NoParenthesis))?;
-        if lparen.token_type != TokenType::Operand(Operand::LParen) {
-            return Err(AstError::Function(Function::NoParenthesis));
-        }
+        self.await_token(Operand::LParen, || {
+            AstError::Function(Function::NoParenthesis)
+        })?;
 
         let params = self.try_function_params(Operand::RParen)?;
         let rettype = self.try_function_return()?;
@@ -94,29 +89,18 @@ impl Parser {
 
     pub fn try_function_next_parameter(&mut self) -> Result<(String, String)> {
         let param = self
-            .tokens
-            .next()
+            .await_token(TokenType::Identifier, || {
+                AstError::Function(Function::ParamError)
+            })?
+            .data
             .ok_or(AstError::Function(Function::ParamError))?;
 
-        let param = if param.token_type == TokenType::Identifier {
-            param.data.ok_or(AstError::Function(Function::ParamError))?
-        } else {
-            return Err(AstError::Function(Function::ParamError));
-        };
-
-        let colon = self
-            .tokens
-            .next()
-            .ok_or(AstError::Function(Function::ParamError))?;
-
-        if colon.token_type != TokenType::Operand(Operand::Colon) {
-            return Err(AstError::Function(Function::ParamError));
-        }
+        self.await_token(Operand::Colon, || AstError::Function(Function::ParamError))?;
 
         let ptype = self
-            .tokens
-            .next()
-            .ok_or(AstError::Function(Function::ParamError))?
+            .await_token(TokenType::Identifier, || {
+                AstError::Function(Function::ParamError)
+            })?
             .data
             .ok_or(AstError::Function(Function::ParamError))?;
 
