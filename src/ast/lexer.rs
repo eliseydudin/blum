@@ -26,7 +26,7 @@ impl<'a> Lexer<'a> {
             } else if char.is_alphabetic() {
                 self.try_identifier(char);
             } else {
-                match Self::try_char(char) {
+                match self.try_char(char) {
                     Some(tk) => self.tokens.push(tk),
                     None => self.tokens.push(Token::error("unknown character")),
                 };
@@ -46,7 +46,7 @@ impl<'a> Lexer<'a> {
         None
     }
 
-    pub fn try_char(ch: char) -> Option<Token> {
+    pub fn try_char(&mut self, ch: char) -> Option<Token> {
         let data = None;
         let token_type = match ch {
             '+' => TokenType::Operand(Operand::Plus),
@@ -74,7 +74,17 @@ impl<'a> Lexer<'a> {
             '|' => TokenType::Operand(Operand::Or),
             '!' => TokenType::Operand(Operand::Not),
 
-            _ => return None,
+            _ => {
+                if ch.is_numeric() {
+                    self.try_integer(ch);
+                } else if ch.is_alphabetic() {
+                    self.try_identifier(ch);
+                } else if ch == '"' {
+                    self.try_string();
+                }
+
+                return None;
+            }
         };
 
         return Some(Token { token_type, data });
@@ -90,7 +100,7 @@ impl<'a> Lexer<'a> {
             } else if ch.is_whitespace() {
                 break;
             } else {
-                if let Some(t) = Self::try_char(ch) {
+                if let Some(t) = self.try_char(ch) {
                     let data = Some(data.clone());
                     let token_type = TokenType::Integer;
 
@@ -119,7 +129,7 @@ impl<'a> Lexer<'a> {
             } else if ch.is_whitespace() {
                 break;
             } else {
-                if let Some(t) = Self::try_char(ch) {
+                if let Some(t) = self.try_char(ch) {
                     let (data, token_type) = if let Ok(kw) = Keyword::try_from(data.clone()) {
                         (None, TokenType::Keyword(kw))
                     } else {
