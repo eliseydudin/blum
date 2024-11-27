@@ -149,4 +149,28 @@ impl Parser {
 
         Ok(result)
     }
+
+    pub fn try_function_return(&mut self) -> Result<String> {
+        self.await_token(Operand::Minus, || {
+            AstError::Function(Function::NoReturnType)
+        })?;
+        self.await_token(Operand::More, || {
+            AstError::Function(Function::ReturnTypeError)
+        })?;
+
+        todo!()
+    }
+
+    pub fn await_token(&mut self, op: Operand, f: fn() -> AstError) -> Result<Token> {
+        match self.tokens.next() {
+            Some(data) => {
+                if data.token_type == TokenType::Operand(op) {
+                    return Ok(data);
+                } else {
+                    return Err(f());
+                }
+            }
+            None => return Err(f()),
+        }
+    }
 }

@@ -5,17 +5,21 @@ pub enum Function {
     NoIdentifier,
     NoParenthesis,
     ParamError,
+    NoReturnType,
+    ReturnTypeError,
 }
 
 #[derive(Debug)]
 pub enum AstError {
     Function(Function),
+    WTF, // if this was returned something bad has happened
 }
 
 impl Display for AstError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AstError::Function(func) => write!(f, "error while parsing the function: {:?}", func),
+            AstError::WTF => write!(f, "HOW DID WE GET HERE"),
         }
     }
 }
