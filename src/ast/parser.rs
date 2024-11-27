@@ -29,7 +29,19 @@ pub enum Expr {
         rettype: String,
         body: Box<Expr>,
     },
+    Value(Value),
+    ValueRef(String),
+    ValueAccess(Box<Expr>, String),
     Todo, // remove later when the parser is complete
+}
+
+pub fn token_to_value(token: Token) -> Expr {
+    match token.token_type {
+        TokenType::Integer => Expr::Value(Value::Integer(token.data.unwrap().parse().unwrap())),
+        TokenType::String => Expr::Value(Value::String(token.data.unwrap())),
+        TokenType::Identifier => Expr::ValueRef(token.data.unwrap()),
+        _ => panic!("not an integer, string or an identifier"),
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -80,6 +92,10 @@ impl Parser {
                         Ok(data) => self.ast.push(data),
                         Err(_) => collect_to(expr, self),
                     };
+                }
+                TokenType::Identifier | TokenType::String | TokenType::Integer => {
+                    let lhand = token_to_value(token.clone());
+                    todo!()
                 }
                 _ => (),
             };
@@ -232,4 +248,11 @@ impl Parser {
         self.current += 1;
         self.tokens.get(self.current).cloned()
     }
+
+    pub fn try_access(&mut self, ind: usize) -> Option<String> {
+        //let next = self.tokens.get(ind)?;
+        None
+    }
+
+    pub fn try_binop(&mut self) {}
 }
