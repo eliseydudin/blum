@@ -1,11 +1,14 @@
 pub mod ast;
-use ast::Lexer;
+use ast::parser::Parser;
 
 fn main() {
     let buff = std::fs::read_to_string("test.blum").unwrap();
-    let mut lexer = Lexer::new(buff.chars());
-    lexer.parse();
-    let tokens = lexer.finish();
+    let mut parser = Parser::new(buff);
+    parser.parse();
 
-    println!("{:#?}", tokens)
+    for err in parser.errors {
+        println!("error: {err}")
+    }
+
+    println!("{:?}", parser.ast);
 }

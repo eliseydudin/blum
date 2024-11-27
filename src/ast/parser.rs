@@ -74,8 +74,11 @@ impl Parser {
                 TokenType::Keyword(kw) => {
                     match kw {
                         Keyword::Fn => {
-                            let err = clone.try_function();
-                            collect_to(err, &mut clone);
+                            let res = clone.try_function();
+                            match res {
+                                Ok(expr) => self.ast.push(expr),
+                                Err(_) => collect_to(res, &mut clone),
+                            }
                         }
                         _ => (),
                     };
@@ -200,6 +203,12 @@ impl Parser {
     }
 
     pub fn try_block(&mut self) -> Result<Expr> {
-        todo!()
+        let block = Expr::Block { exprs: vec![] };
+        while let Some(n) = self.tokens.next() {
+            if n.token_type == TokenType::Operand(Operand::RFigure) {
+                break;
+            }
+        }
+        Ok(block)
     }
 }
