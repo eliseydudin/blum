@@ -56,6 +56,12 @@ pub enum TokenType {
     Error(&'static str),
 }
 
+impl Into<TokenType> for Operand {
+    fn into(self) -> TokenType {
+        TokenType::Operand(self)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Token {
     pub token_type: TokenType,

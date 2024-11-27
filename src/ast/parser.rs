@@ -9,6 +9,7 @@ pub enum Value {
 
 #[derive(Clone, Debug)]
 pub enum Expr {
+    // a <op> b
     Bin {
         left: Box<Expr>,
         right: Box<Expr>,
@@ -21,7 +22,7 @@ pub enum Expr {
         name: String,
         params: HashMap<String, String>,
         rettype: String,
-        body: Vec<Expr>,
+        body: Box<Expr>,
     },
 }
 
@@ -78,8 +79,8 @@ impl Parser {
         }
 
         let params = self.try_function_params(Operand::RParen)?;
-        let rettype = String::new();
-        let body = vec![];
+        let rettype = self.try_function_return()?;
+        let body = Box::new(self.try_block()?);
 
         let expr = Expr::Function {
             name,
@@ -157,14 +158,22 @@ impl Parser {
         self.await_token(Operand::More, || {
             AstError::Function(Function::ReturnTypeError)
         })?;
+        let rettype = self
+            .await_token(TokenType::Identifier, || {
+                AstError::Function(Function::ReturnTypeError)
+            })?
+            .data
+            .ok_or(AstError::Function(Function::ReturnTypeError))?;
 
-        todo!()
+        Ok(rettype)
     }
 
-    pub fn await_token(&mut self, op: Operand, f: fn() -> AstError) -> Result<Token> {
+    pub fn await_token(&mut self, op: impl Into<TokenType>, f: fn() -> AstError) -> Result<Token> {
+        let ttype: TokenType = op.into();
+
         match self.tokens.next() {
             Some(data) => {
-                if data.token_type == TokenType::Operand(op) {
+                if data.token_type == ttype {
                     return Ok(data);
                 } else {
                     return Err(f());
@@ -172,5 +181,9 @@ impl Parser {
             }
             None => return Err(f()),
         }
+    }
+
+    pub fn try_block(&mut self) -> Result<Expr> {
+        todo!()
     }
 }
