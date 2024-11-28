@@ -95,7 +95,6 @@ impl Parser {
                 }
                 TokenType::Identifier | TokenType::String | TokenType::Integer => {
                     let lhand = token_to_value(token.clone());
-                    todo!()
                 }
                 _ => (),
             };
@@ -106,10 +105,7 @@ impl Parser {
 
     pub fn try_keyword(&mut self, keyword: Keyword) -> Result<Expr> {
         let expr = match keyword {
-            Keyword::Fn => {
-                
-                self.try_function()?
-            }
+            Keyword::Fn => self.try_function()?,
             _ => Expr::Todo,
         };
 
@@ -127,9 +123,7 @@ impl Parser {
 
         self.await_token(Operand::LParen, AstError::Function(Function::NoParenthesis))?;
 
-        let params = self
-            .try_type_tuple(Operand::RParen)
-            .unwrap_or_default();
+        let params = self.try_type_tuple(Operand::RParen)?;
 
         let rettype = match self.try_function_return() {
             Ok(data) => data,
@@ -153,7 +147,7 @@ impl Parser {
         Ok(expr)
     }
 
-    pub fn try_function_next_parameter(&mut self) -> Result<(String, String)> {
+    pub fn try_type_tuple_next(&mut self) -> Result<(String, String)> {
         let param = self
             .await_token(
                 TokenType::Identifier,
@@ -178,8 +172,17 @@ impl Parser {
     pub fn try_type_tuple(&mut self, end: Operand) -> Result<HashMap<String, String>> {
         let mut result = HashMap::new();
 
+        match self.peek() {
+            Some(tk) => {
+                if tk.token_type == TokenType::Operand(end) {
+                    return Ok(result);
+                }
+            }
+            None => return Err(AstError::Function(Function::ParamError)),
+        };
+
         loop {
-            let next = self.try_function_next_parameter()?;
+            let next = self.try_type_tuple_next()?;
             result.insert(next.0, next.1);
 
             let next = self
@@ -257,6 +260,10 @@ impl Parser {
     pub fn next(&mut self) -> Option<Token> {
         self.current += 1;
         self.tokens.get(self.current).cloned()
+    }
+
+    pub fn peek(&mut self) -> Option<Token> {
+        self.tokens.get(self.current + 1).cloned()
     }
 
     pub fn get(&mut self, ind: usize) -> Option<Token> {
