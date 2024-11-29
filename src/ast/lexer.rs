@@ -12,7 +12,7 @@ impl<'a> Lexer<'a> {
         Self { tokens, chars }
     }
 
-    pub fn parse(&mut self) {
+    pub fn parse(mut self) -> Self {
         loop {
             let char = match self.skip_whitespace() {
                 Some(c) => c,
@@ -32,6 +32,8 @@ impl<'a> Lexer<'a> {
                 };
             }
         }
+
+        self
     }
 
     pub fn skip_whitespace(&mut self) -> Option<char> {
