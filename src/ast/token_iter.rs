@@ -28,17 +28,21 @@ impl TokenIter {
         self.tokens.get(self.counter.get()).cloned()
     }
 
-    pub fn expect(&self, expect: impl Into<TokenType>) -> bool {
-        let tt: TokenType = expect.into();
-        let token = match self.peek() {
-            Some(token) => token,
-            None => return false,
-        };
-
-        token.token_type == tt
+    pub fn expect(&self, expect: impl Into<TokenType>) -> Option<(bool, Token)> {
+        let expect: TokenType = expect.into();
+        match self.peek() {
+            Some(token) => {
+                if token.token_type == expect {
+                    return Some((true, token));
+                } else {
+                    return Some((false, token));
+                }
+            }
+            None => None,
+        }
     }
 
-    pub fn expect_and_progress(&self, expect: impl Into<TokenType>) -> bool {
+    pub fn expect_and_progress(&self, expect: impl Into<TokenType>) -> Option<(bool, Token)> {
         let result = self.expect(expect);
         self.counter.set(self.counter.get() + 1);
         result

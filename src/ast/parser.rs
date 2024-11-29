@@ -1,6 +1,6 @@
 use crate::error;
 
-use super::{Error, Expr, Lexer, Result, Token, TokenIter, TokenType};
+use super::{token::Keyword, Error, Expr, Lexer, Operand, Result, Token, TokenIter, TokenType};
 
 pub struct Parser {
     pub tokens: TokenIter,
@@ -33,12 +33,36 @@ impl Parser {
 
     pub fn parse_next(&mut self, token: Token) -> Result<Expr> {
         match token.token_type {
-            TokenType::Keyword(_) => self.try_keyword(token),
+            TokenType::Keyword(kw) => self.try_keyword(kw),
             _ => error!().wrap(),
         }
     }
 
-    pub fn try_keyword(&mut self, token: Token) -> Result<Expr> {
-        error!("TODO").wrap()
+    pub fn try_keyword(&mut self, kw: Keyword) -> Result<Expr> {
+        match kw {
+            Keyword::Fn => self.try_function(),
+            _ => error!().wrap(),
+        }
+    }
+
+    pub fn try_function(&mut self) -> Result<Expr> {
+        let identifier = self
+            .tokens
+            .expect_and_progress(TokenType::Identifier)
+            .ok_or(error!("expected identifier!"))?;
+
+        if !identifier.0 {
+            return Error::Expect {
+                expected: TokenType::Identifier,
+                found: identifier.1.token_type,
+            }
+            .wrap();
+        }
+
+        todo!()
+    }
+
+    pub fn try_block(&mut self) -> Result<Expr> {
+        todo!()
     }
 }
