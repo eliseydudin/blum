@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::error;
 
 use super::{token::Keyword, Error, Expr, Lexer, Operand, Result, Token, TokenIter, TokenType};
@@ -59,21 +61,36 @@ impl Parser {
             .wrap();
         }
 
-        let lparen = self
+        let _lparen = self
             .tokens
             .expect_and_progress(Operand::LParen)
             .ok_or(Error::EOF(TokenType::Operand(Operand::LParen)))?;
 
-        let type_map = self.try_type_map()?;
+        // we can do .unwrap since [`TokenType::Identifier`] always has some data
+        let name = identifier.1.data.unwrap();
+        let params = self.try_type_map()?;
+        let rettype = self
+            .try_function_return_type()?
+            .unwrap_or("void".to_owned());
+        let body = Box::new(self.try_block()?);
 
-        todo!()
+        Ok(Expr::Function {
+            name,
+            rettype,
+            params,
+            body,
+        })
     }
 
     pub fn try_block(&mut self) -> Result<Expr> {
         todo!()
     }
 
-    pub fn try_type_map(&mut self) -> Result<Expr> {
+    pub fn try_type_map(&mut self) -> Result<HashMap<String, String>> {
+        todo!()
+    }
+
+    pub fn try_function_return_type(&mut self) -> Result<Option<String>> {
         todo!()
     }
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(Debug)]
 pub enum BinOp {
     Add,
@@ -12,5 +14,11 @@ pub enum Expr {
         op: BinOp,
         lhand: Box<Expr>,
         rhand: Box<Expr>,
+    },
+    Function {
+        name: String,
+        rettype: String,
+        params: HashMap<String, String>,
+        body: Box<Expr>,
     },
 }
