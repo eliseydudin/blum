@@ -1,4 +1,7 @@
-use std::{error::Error as ErrorTrait, fmt::Display};
+use std::{
+    error::Error as ErrorTrait,
+    fmt::{write, Display},
+};
 
 use super::TokenType;
 
@@ -10,6 +13,7 @@ pub enum Error {
         expected: TokenType,
         found: TokenType,
     },
+    EOF(TokenType),
 }
 
 impl Error {
@@ -36,6 +40,7 @@ impl Display for Error {
                 expected, found
             ),
             Self::Message(m) => write!(f, "error: {m}"),
+            Self::EOF(e) => write!(f, "error: expected {e:?}, found end of file"),
         }
     }
 }

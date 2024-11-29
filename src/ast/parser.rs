@@ -49,7 +49,7 @@ impl Parser {
         let identifier = self
             .tokens
             .expect_and_progress(TokenType::Identifier)
-            .ok_or(error!("expected identifier!"))?;
+            .ok_or(Error::EOF(TokenType::Identifier))?;
 
         if !identifier.0 {
             return Error::Expect {
@@ -59,10 +59,21 @@ impl Parser {
             .wrap();
         }
 
+        let lparen = self
+            .tokens
+            .expect_and_progress(Operand::LParen)
+            .ok_or(Error::EOF(TokenType::Operand(Operand::LParen)))?;
+
+        let type_map = self.try_type_map()?;
+
         todo!()
     }
 
     pub fn try_block(&mut self) -> Result<Expr> {
+        todo!()
+    }
+
+    pub fn try_type_map(&mut self) -> Result<Expr> {
         todo!()
     }
 }
