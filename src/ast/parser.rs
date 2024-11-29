@@ -88,10 +88,15 @@ impl Parser {
     }
 
     pub fn try_type_map(&mut self, end: Operand) -> Result<HashMap<String, String>> {
+        eprintln!("warning! `try_type_map` currently does nothing!");
         while let Some(next) = self.tokens.next() {
             if next.token_type == end.into() {
                 break;
             }
+        }
+
+        if self.tokens.peek().is_none() {
+            return Error::Message("error: try_type_map found EOF!".to_owned()).wrap();
         }
 
         let result = HashMap::new();

@@ -30,7 +30,7 @@ impl TokenIter {
 
     pub fn expect(&self, expect: impl Into<TokenType>) -> Option<(bool, Token)> {
         let expect: TokenType = expect.into();
-        match self.peek() {
+        match self.current() {
             Some(token) => {
                 if token.token_type == expect {
                     Some((true, token))
