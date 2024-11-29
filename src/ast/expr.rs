@@ -8,7 +8,6 @@ pub enum BinOp {
 
 #[derive(Debug)]
 pub enum Expr {
-    Todo,
     BinOp {
         op: BinOp,
         lhand: Box<Expr>,

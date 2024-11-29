@@ -32,11 +32,11 @@ impl Parser {
     pub fn parse_next(&mut self, token: Token) -> Result<Expr> {
         match token.token_type {
             TokenType::Keyword(_) => self.try_keyword(token),
-            _ => Ok(Expr::Todo),
+            _ => Err(Error::new("not yet implemented")),
         }
     }
 
     pub fn try_keyword(&mut self, token: Token) -> Result<Expr> {
-        Ok(Expr::Todo)
+        Err(Error::new("not yet implemented"))
     }
 }
