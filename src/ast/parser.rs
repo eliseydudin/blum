@@ -1,4 +1,4 @@
-use super::{Lexer, Token, TokenIter};
+use super::{Lexer, TokenIter};
 
 pub struct Parser {
     pub tokens: TokenIter,
