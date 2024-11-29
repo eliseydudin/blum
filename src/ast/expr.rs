@@ -21,4 +21,5 @@ pub enum Expr {
         params: HashMap<String, String>,
         body: Box<Expr>,
     },
+    Block(Vec<Expr>),
 }

@@ -16,7 +16,7 @@ impl TokenIter {
 
     pub fn next(&self) -> Option<Token> {
         let tk = self.tokens.get(self.counter.get()).cloned();
-        self.counter.set(self.counter.get() + 1);
+        self.progress();
         tk
     }
 
@@ -44,7 +44,11 @@ impl TokenIter {
 
     pub fn expect_and_progress(&self, expect: impl Into<TokenType>) -> Option<(bool, Token)> {
         let result = self.expect(expect);
-        self.counter.set(self.counter.get() + 1);
+        self.progress();
         result
+    }
+
+    pub fn progress(&self) {
+        self.counter.set(self.counter.get() + 1);
     }
 }

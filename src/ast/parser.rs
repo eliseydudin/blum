@@ -84,7 +84,14 @@ impl Parser {
     }
 
     pub fn try_block(&mut self) -> Result<Expr> {
-        todo!()
+        eprintln!("warning! `try_block` currently does nothing!");
+        while let Some(next) = self.tokens.next() {
+            if next.token_type == Operand::RFigure.into() {
+                break;
+            }
+        }
+
+        Ok(Expr::Block(vec![]))
     }
 
     pub fn try_type_map(&mut self, end: Operand) -> Result<HashMap<String, String>> {
@@ -96,7 +103,7 @@ impl Parser {
         }
 
         if self.tokens.peek().is_none() {
-            return Error::Message("error: try_type_map found EOF!".to_owned()).wrap();
+            return error!("try_type_map found EOF!").wrap();
         }
 
         let result = HashMap::new();
@@ -104,6 +111,24 @@ impl Parser {
     }
 
     pub fn try_function_return_type(&mut self) -> Result<Option<String>> {
-        todo!()
+        let token = self.tokens.current().ok_or(error!("found EOF!"))?;
+
+        if token.token_type == Operand::LFigure.into() {
+            return Ok(None);
+        } else if token.token_type == Operand::Minus.into() {
+            self.tokens.progress();
+            let more_token = self.tokens.next().ok_or(error!("found EOF!"))?;
+            let type_identifier = self.tokens.next().ok_or(error!("found EOF!"))?;
+
+            if more_token.token_type == Operand::More.into()
+                && type_identifier.token_type == TokenType::Identifier
+            {
+                return Ok(Some(type_identifier.data.unwrap()));
+            } else {
+                return error!("unexpected token found in the -> operator!").wrap();
+            }
+        }
+
+        error!().wrap()
     }
 }
