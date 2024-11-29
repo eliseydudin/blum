@@ -31,11 +31,3 @@ impl Error for AstError {
 }
 
 pub type Result<T> = std::result::Result<T, AstError>;
-
-pub trait Collect {
-    fn collect<T>(&mut self, err: Result<T>);
-}
-
-pub fn collect_to<T>(e: Result<T>, container: &mut impl Collect) {
-    container.collect(e);
-}
