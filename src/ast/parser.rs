@@ -1,3 +1,5 @@
+use crate::error;
+
 use super::{Error, Expr, Lexer, Result, Token, TokenIter, TokenType};
 
 pub struct Parser {
@@ -32,11 +34,11 @@ impl Parser {
     pub fn parse_next(&mut self, token: Token) -> Result<Expr> {
         match token.token_type {
             TokenType::Keyword(_) => self.try_keyword(token),
-            _ => Err(Error::new("not yet implemented")),
+            _ => error!().wrap(),
         }
     }
 
     pub fn try_keyword(&mut self, token: Token) -> Result<Expr> {
-        Err(Error::new("not yet implemented"))
+        error!().wrap()
     }
 }
