@@ -1,9 +1,8 @@
-use super::{Lexer, Token};
+use super::{Lexer, Token, TokenIter};
 
 pub struct Parser {
-    pub tokens: Vec<Token>,
+    pub tokens: TokenIter,
     pub ast: Vec<()>,
-    pub position: usize,
 }
 
 impl Parser {
@@ -11,13 +10,9 @@ impl Parser {
         let input: String = input.into();
 
         let tokens = Lexer::new(input.chars()).parse().finish();
+        let tokens = TokenIter::new(tokens);
         let ast = vec![];
-        let position = 0usize;
 
-        Self {
-            tokens,
-            ast,
-            position,
-        }
+        Self { ast, tokens }
     }
 }
