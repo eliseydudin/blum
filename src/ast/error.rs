@@ -1,33 +1,16 @@
-use std::{error::Error, fmt::Display};
+use std::{error::Error as ErrorTrait, fmt::Display};
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum Function {
-    NoIdentifier,
-    NoParenthesis,
-    ParamError,
-    NoReturnType,
-    ReturnTypeError,
-}
+#[derive(Debug)]
+pub struct Error;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum AstError {
-    Function(Function),
-    WTF, // if this was returned something bad has happened
-}
-
-impl Display for AstError {
+impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AstError::Function(func) => write!(f, "error while parsing the function: {:?}", func),
-            AstError::WTF => write!(f, "HOW DID WE GET HERE"),
-        }
+        write!(f, "<blum error>")
     }
 }
 
-impl Error for AstError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl ErrorTrait for Error {
+    fn source(&self) -> Option<&(dyn ErrorTrait + 'static)> {
         None
     }
 }
-
-pub type Result<T> = std::result::Result<T, AstError>;
