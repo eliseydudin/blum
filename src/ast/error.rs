@@ -1,7 +1,4 @@
-use std::{
-    error::Error as ErrorTrait,
-    fmt::{write, Display},
-};
+use std::{error::Error as ErrorTrait, fmt::Display};
 
 use super::TokenType;
 

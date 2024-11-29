@@ -33,9 +33,9 @@ impl TokenIter {
         match self.peek() {
             Some(token) => {
                 if token.token_type == expect {
-                    return Some((true, token));
+                    Some((true, token))
                 } else {
-                    return Some((false, token));
+                    Some((false, token))
                 }
             }
             None => None,
