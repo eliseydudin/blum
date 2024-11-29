@@ -83,20 +83,31 @@ impl Parser {
 
     pub fn try_block(&mut self) -> Result<Expr> {
         eprintln!("warning! `try_block` currently does nothing!");
-        while let Some(next) = self.tokens.next() {
-            if next.token_type == Operand::RFigure.into() {
-                break;
+        loop {
+            let token = self.tokens.next();
+            match token {
+                Some(next) => {
+                    if next.token_type == Operand::RFigure.into() {
+                        break;
+                    }
+                }
+                None => return error!("`try_block` never found `end`!").wrap(),
             }
         }
-
         Ok(Expr::Block(vec![]))
     }
 
     pub fn try_type_map(&mut self, end: Operand) -> Result<HashMap<String, String>> {
         eprintln!("warning! `try_type_map` currently does nothing!");
-        while let Some(next) = self.tokens.next() {
-            if next.token_type == end.into() {
-                break;
+        loop {
+            let token = self.tokens.next();
+            match token {
+                Some(next) => {
+                    if next.token_type == end.into() {
+                        break;
+                    }
+                }
+                None => return error!("`try_type_map` never found `end`!").wrap(),
             }
         }
 
