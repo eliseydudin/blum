@@ -61,6 +61,7 @@ impl Parser {
             .wrap();
         }
 
+        // _lparen should just be ignored
         let _lparen = self
             .tokens
             .expect_and_progress(Operand::LParen)
@@ -68,7 +69,7 @@ impl Parser {
 
         // we can do .unwrap since [`TokenType::Identifier`] always has some data
         let name = identifier.1.data.unwrap();
-        let params = self.try_type_map()?;
+        let params = self.try_type_map(Operand::RParen)?;
         let rettype = self
             .try_function_return_type()?
             .unwrap_or("void".to_owned());
@@ -86,8 +87,15 @@ impl Parser {
         todo!()
     }
 
-    pub fn try_type_map(&mut self) -> Result<HashMap<String, String>> {
-        todo!()
+    pub fn try_type_map(&mut self, end: Operand) -> Result<HashMap<String, String>> {
+        while let Some(next) = self.tokens.next() {
+            if next.token_type == end.into() {
+                break;
+            }
+        }
+
+        let result = HashMap::new();
+        Ok(result)
     }
 
     pub fn try_function_return_type(&mut self) -> Result<Option<String>> {
