@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
-use crate::error;
-
 use super::{token::Keyword, Error, Expr, Lexer, Operand, Result, Token, TokenIter, TokenType};
+use crate::error;
+use std::collections::HashMap;
 
 pub struct Parser {
     pub tokens: TokenIter,
