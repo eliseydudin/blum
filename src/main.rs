@@ -1,5 +1,5 @@
 pub mod ast;
-use ast::parser::Parser;
+use ast::Parser;
 
 fn main() {
     let buff = std::fs::read_to_string("test.blum").unwrap();
