@@ -3,6 +3,12 @@ use ast::Parser;
 
 fn main() {
     let buff = std::fs::read_to_string("test.blum").unwrap();
-    let parser = Parser::new(buff);
-    println!("{:#?}", parser.tokens);
+    let mut parser = Parser::new(buff);
+    let errors = parser.parse();
+
+    for error in errors {
+        println!("{error}");
+    }
+
+    println!("{:#?}", parser.ast)
 }

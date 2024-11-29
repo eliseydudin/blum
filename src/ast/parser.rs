@@ -1,4 +1,4 @@
-use super::{Expr, Lexer, Result, Token, TokenIter, TokenType};
+use super::{Error, Expr, Lexer, Result, Token, TokenIter, TokenType};
 
 pub struct Parser {
     pub tokens: TokenIter,
@@ -16,20 +16,27 @@ impl Parser {
         Self { ast, tokens }
     }
 
-    pub fn parse(&mut self) {
+    pub fn parse(&mut self) -> Vec<Error> {
+        let mut errors = vec![];
+
         while let Some(token) = self.tokens.next() {
-            self.parse_next(token);
+            match self.parse_next(token) {
+                Ok(e) => self.ast.push(e),
+                Err(e) => errors.push(e),
+            }
         }
+
+        errors
     }
 
-    pub fn parse_next(&mut self, token: Token) {
+    pub fn parse_next(&mut self, token: Token) -> Result<Expr> {
         match token.token_type {
-            TokenType::Keyword(_) => (),
-            _ => (),
+            TokenType::Keyword(_) => self.try_keyword(token),
+            _ => Ok(Expr::Todo),
         }
     }
 
     pub fn try_keyword(&mut self, token: Token) -> Result<Expr> {
-        todo!()
+        Ok(Expr::Todo)
     }
 }
