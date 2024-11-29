@@ -14,3 +14,5 @@ impl ErrorTrait for Error {
         None
     }
 }
+
+pub type Result<T> = std::result::Result<T, Error>;

@@ -1,6 +1,6 @@
 use std::cell::Cell;
 
-use super::Token;
+use super::{Token, TokenType};
 
 #[derive(Debug)]
 pub struct TokenIter {
@@ -26,5 +26,21 @@ impl TokenIter {
 
     pub fn current(&self) -> Option<Token> {
         self.tokens.get(self.counter.get()).cloned()
+    }
+
+    pub fn expect(&self, expect: impl Into<TokenType>) -> bool {
+        let tt: TokenType = expect.into();
+        let token = match self.peek() {
+            Some(token) => token,
+            None => return false,
+        };
+
+        token.token_type == tt
+    }
+
+    pub fn expect_and_progress(&self, expect: impl Into<TokenType>) -> bool {
+        let result = self.expect(expect);
+        self.counter.set(self.counter.get() + 1);
+        result
     }
 }
