@@ -66,6 +66,7 @@ impl From<Operand> for TokenType {
 pub struct Token {
     pub token_type: TokenType,
     pub data: Option<String>,
+    pub pos: usize,
 }
 
 impl Token {
@@ -73,6 +74,7 @@ impl Token {
         Token {
             token_type: TokenType::Error(err),
             data: None,
+            pos: 0,
         }
     }
 }

@@ -2,6 +2,7 @@ use std::cell::Cell;
 
 use super::Token;
 
+#[derive(Debug)]
 pub struct TokenIter {
     pub tokens: Vec<Token>,
     pub counter: Cell<usize>,

@@ -4,12 +4,18 @@ use std::str::Chars;
 pub struct Lexer<'a> {
     chars: Chars<'a>,
     tokens: Vec<Token>,
+    start_pos: usize,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(chars: Chars<'a>) -> Self {
         let tokens = Vec::new();
-        Self { tokens, chars }
+        let start_pos = chars.size_hint().1.unwrap_or_default();
+        Self {
+            tokens,
+            chars,
+            start_pos,
+        }
     }
 
     pub fn parse(mut self) -> Self {
@@ -89,7 +95,12 @@ impl<'a> Lexer<'a> {
             }
         };
 
-        Some(Token { token_type, data })
+        let pos = self.current_position();
+        Some(Token {
+            token_type,
+            data,
+            pos,
+        })
     }
 
     pub fn try_integer(&mut self, curr: char) {
@@ -106,7 +117,7 @@ impl<'a> Lexer<'a> {
                     let data = Some(data.clone());
                     let token_type = TokenType::Integer;
 
-                    self.tokens.push(Token { data, token_type });
+                    self.tokens.push(self.token(data, token_type));
                     self.tokens.push(t);
                 } else {
                     self.tokens.push(Token::error("unknown integer literal"));
@@ -118,7 +129,7 @@ impl<'a> Lexer<'a> {
 
         let token_type = TokenType::Integer;
         let data = Some(data);
-        self.tokens.push(Token { token_type, data })
+        self.tokens.push(self.token(data, token_type))
     }
 
     pub fn try_identifier(&mut self, curr: char) {
@@ -138,7 +149,7 @@ impl<'a> Lexer<'a> {
                         (Some(data), TokenType::Identifier)
                     };
 
-                    self.tokens.push(Token { data, token_type });
+                    self.tokens.push(self.token(data, token_type));
                     self.tokens.push(t);
                 } else {
                     self.tokens.push(Token::error("unknown string literal"));
@@ -154,7 +165,7 @@ impl<'a> Lexer<'a> {
             (Some(data), TokenType::Identifier)
         };
 
-        self.tokens.push(Token { token_type, data })
+        self.tokens.push(self.token(data, token_type))
     }
 
     pub fn try_string(&mut self) {
@@ -163,7 +174,7 @@ impl<'a> Lexer<'a> {
             if ch == '"' {
                 let token_type = TokenType::String;
                 let data = Some(data);
-                let tk = Token { token_type, data };
+                let tk = self.token(data, token_type);
 
                 self.tokens.push(tk);
                 return;
@@ -174,10 +185,24 @@ impl<'a> Lexer<'a> {
 
         let token_type = TokenType::Error("'\"' was never closed");
         let data = None;
-        self.tokens.push(Token { data, token_type });
+        self.tokens.push(self.token(data, token_type));
     }
 
     pub fn finish(self) -> Vec<Token> {
         self.tokens
+    }
+
+    pub fn current_position(&self) -> usize {
+        let size_hint = self.chars.size_hint();
+        self.start_pos - size_hint.1.unwrap_or_default()
+    }
+
+    pub fn token(&self, data: Option<String>, token_type: TokenType) -> Token {
+        let pos = self.current_position();
+        Token {
+            data,
+            token_type,
+            pos,
+        }
     }
 }
