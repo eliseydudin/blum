@@ -39,6 +39,6 @@ impl Parser {
     }
 
     pub fn try_keyword(&mut self, token: Token) -> Result<Expr> {
-        error!().wrap()
+        error!("TODO").wrap()
     }
 }
