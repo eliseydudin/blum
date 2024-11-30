@@ -139,7 +139,7 @@ impl Parser {
         let sep_t = self
             .tokens
             .expect_and_progress(sep)
-            .ok_or(Error::EOF(sep.into()))?;
+            .ok_or(Error::Eof(sep.into()))?;
 
         if sep_t.0 {
             Ok(true)

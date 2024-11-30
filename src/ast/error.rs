@@ -1,5 +1,5 @@
 use super::{Token, TokenType};
-use std::{error::Error as ErrorTrait, fmt::Display, process::Output};
+use std::{error::Error as ErrorTrait, fmt::Display};
 
 #[derive(Debug)]
 pub enum Error {
@@ -9,7 +9,7 @@ pub enum Error {
         expected: TokenType,
         found: TokenType,
     },
-    EOF(TokenType),
+    Eof(TokenType),
 }
 
 impl Error {
@@ -36,7 +36,7 @@ impl Display for Error {
                 expected, found
             ),
             Self::Message(m) => write!(f, "error: {m}"),
-            Self::EOF(e) => write!(f, "error: expected {e:?}, found end of file"),
+            Self::Eof(e) => write!(f, "error: expected {e:?}, found end of file"),
         }
     }
 }
@@ -81,7 +81,7 @@ impl ExpectUtils for Option<(bool, Token)> {
             };
         }
 
-        Error::EOF(expected).wrap()
+        Error::Eof(expected).wrap()
     }
 }
 
@@ -97,7 +97,7 @@ impl EofFoundUtils for Option<Token> {
     fn eof_error(self) -> Result<Self::Output> {
         match self {
             Some(t) => Ok(t),
-            None => error!("found unexpected EOF!").wrap(),
+            None => error!("found unexpected Eof!").wrap(),
         }
     }
 }
