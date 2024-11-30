@@ -1,6 +1,5 @@
+use super::{Token, TokenType};
 use std::{error::Error as ErrorTrait, fmt::Display};
-
-use super::TokenType;
 
 #[derive(Debug)]
 pub enum Error {
@@ -58,6 +57,33 @@ macro_rules! error {
     ($msg:tt) => {
         $crate::ast::Error::new(format!("{}", $msg))
     };
+}
+
+pub trait ExpectUtils {
+    type Output;
+
+    fn expect_ext(&self, expected: TokenType) -> Result<Self::Output>;
+}
+
+impl ExpectUtils for Option<(bool, Token)> {
+    type Output = Token;
+
+    fn expect_ext(&self, expected: TokenType) -> Result<Self::Output> {
+        match self {
+            Some(data) => {
+                if data.0 {
+                    Ok(data.1.clone())
+                } else {
+                    Error::Expect {
+                        expected,
+                        found: data.1.token_type.clone(),
+                    }
+                    .wrap()
+                }
+            }
+            None => Error::EOF(expected).wrap(),
+        }
+    }
 }
 
 /*

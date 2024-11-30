@@ -1,4 +1,6 @@
-use super::{token::Keyword, Error, Expr, Lexer, Operand, Result, Token, TokenIter, TokenType};
+use super::{
+    token::Keyword, Error, ExpectUtils, Expr, Lexer, Operand, Result, Token, TokenIter, TokenType,
+};
 use crate::error;
 use std::collections::HashMap;
 
@@ -72,24 +74,15 @@ impl Parser {
         let identifier = self
             .tokens
             .expect_and_progress(TokenType::Identifier)
-            .ok_or(Error::EOF(TokenType::Identifier))?;
-
-        if !identifier.0 {
-            return Error::Expect {
-                expected: TokenType::Identifier,
-                found: identifier.1.token_type,
-            }
-            .wrap();
-        }
+            .expect_ext(TokenType::Identifier)?;
 
         // _lparen should just be ignored
-        let _lparen = self
-            .tokens
+        self.tokens
             .expect_and_progress(Operand::LParen)
-            .ok_or(Error::EOF(TokenType::Operand(Operand::LParen)))?;
+            .expect_ext(Operand::LParen.into())?;
 
         // we can do .unwrap since [`TokenType::Identifier`] always has some data
-        let name = identifier.1.data.unwrap();
+        let name = identifier.data.unwrap();
         let params = self.try_type_map(Operand::RParen, Operand::Coma)?;
         let rettype = self
             .try_function_return_type()?
@@ -169,33 +162,15 @@ impl Parser {
 
     /// Attempt to parse the next element of the current type map
     pub fn try_type_map_next(&mut self, token: Token) -> Result<(String, String)> {
-        match self.tokens.expect_and_progress(Operand::Colon) {
-            Some(data) => {
-                if !data.0 {
-                    return Error::Expect {
-                        expected: Operand::Colon.into(),
-                        found: data.1.token_type,
-                    }
-                    .wrap();
-                }
-            }
-            None => return Error::EOF(Operand::Colon.into()).wrap(),
-        };
+        // Just expect a colon
+        self.tokens
+            .expect_and_progress(Operand::Colon)
+            .expect_ext(Operand::Colon.into())?;
 
-        let ptype = match self.tokens.expect_and_progress(TokenType::Identifier) {
-            Some(data) => {
-                if data.0 {
-                    data.1
-                } else {
-                    return Error::Expect {
-                        expected: TokenType::Identifier,
-                        found: data.1.token_type,
-                    }
-                    .wrap();
-                }
-            }
-            None => return Error::EOF(TokenType::Identifier).wrap(),
-        };
+        let ptype = self
+            .tokens
+            .expect_and_progress(TokenType::Identifier)
+            .expect_ext(TokenType::Identifier)?;
 
         Ok((token.data.unwrap(), ptype.data.unwrap()))
     }
