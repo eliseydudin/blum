@@ -34,6 +34,7 @@ impl Parser {
     pub fn parse_next(&mut self, token: Token) -> Result<Expr> {
         match token.token_type {
             TokenType::Keyword(kw) => self.try_keyword(kw),
+            TokenType::Error(err) => error!(err).wrap(),
             _ => error!().wrap(),
         }
     }
@@ -98,7 +99,8 @@ impl Parser {
     }
 
     pub fn try_type_map(&mut self, end: Operand) -> Result<HashMap<String, String>> {
-        eprintln!("warning! `try_type_map` currently does nothing!");
+        let mut result = HashMap::new();
+
         loop {
             let token = self.tokens.next();
             match token {
@@ -106,17 +108,58 @@ impl Parser {
                     if next.token_type == end.into() {
                         break;
                     }
+
+                    let to_insert = self.try_type_map_next(next)?;
+                    result.insert(to_insert.0, to_insert.1);
+
+                    let coma = self
+                        .tokens
+                        .expect_and_progress(Operand::Coma)
+                        .ok_or(Error::EOF(Operand::Coma.into()))?;
+
+                    if coma.0 {
+                        continue;
+                    } else if coma.1.token_type == end.into() {
+                        return Ok(result);
+                    }
                 }
                 None => return error!("`try_type_map` never found `end`!").wrap(),
             }
         }
 
-        if self.tokens.peek().is_none() {
-            return error!("try_type_map found EOF!").wrap();
-        }
-
-        let result = HashMap::new();
         Ok(result)
+    }
+
+    pub fn try_type_map_next(&mut self, token: Token) -> Result<(String, String)> {
+        match self.tokens.expect_and_progress(Operand::Colon) {
+            Some(data) => {
+                if !data.0 {
+                    return Error::Expect {
+                        expected: Operand::Colon.into(),
+                        found: data.1.token_type,
+                    }
+                    .wrap();
+                }
+            }
+            None => return Error::EOF(Operand::Colon.into()).wrap(),
+        };
+
+        let ptype = match self.tokens.expect_and_progress(TokenType::Identifier) {
+            Some(data) => {
+                if data.0 {
+                    data.1
+                } else {
+                    return Error::Expect {
+                        expected: TokenType::Identifier,
+                        found: data.1.token_type,
+                    }
+                    .wrap();
+                }
+            }
+            None => return Error::EOF(TokenType::Identifier).wrap(),
+        };
+
+        Ok((token.data.unwrap(), ptype.data.unwrap()))
     }
 
     pub fn try_function_return_type(&mut self) -> Result<Option<String>> {

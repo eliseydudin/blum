@@ -1,5 +1,5 @@
-fn test(a: i32) -> i32 {
-    return a + 20;
+fn test(a: i32, b: f64) -> i32 {
+    return a + b;
 }
 
 fn main() {
