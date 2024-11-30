@@ -31,4 +31,11 @@ pub enum Expr {
     },
     Block(Vec<Expr>),
     Value(Value),
+    Null,
+}
+
+impl Expr {
+    pub fn variable_ref(var: String) -> Self {
+        Expr::Value(Value::VariableRef(var))
+    }
 }

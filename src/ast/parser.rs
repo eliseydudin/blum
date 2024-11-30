@@ -3,6 +3,7 @@ use super::{
     TokenIter, TokenType,
 };
 use crate::error;
+use core::error;
 use std::collections::HashMap;
 
 pub struct Parser {
@@ -224,7 +225,60 @@ impl Parser {
     /// return a + 20;
     /// ```
     /// It will go from `a` to 20
-    pub fn try_value_until(&mut self, until: Operand) -> Result<Expr> {
+    pub fn try_value_until(&mut self, end: Operand) -> Result<Expr> {
+        let token = self.tokens.next().eof_error()?;
+        let result = match token.token_type {
+            TokenType::Identifier => {
+                let start = &mut token.data.unwrap();
+                let identifier = Expr::variable_ref(self.try_value_element_access(start)?);
+
+                Ok(Expr::Null)
+            }
+            TokenType::Operand(op) => {
+                if op == end {
+                    return Ok(Expr::Null);
+                }
+
+                Ok(self.try_operand(op)?)
+            }
+            _ => error!("unexpected token!").wrap(),
+        };
+
+        result
+    }
+
+    // Used to parse expressions like `foo.bar.silly.etc`
+    pub fn try_value_element_access(&mut self, start: &mut String) -> Result<String> {
+        let next_tk = self.tokens.next();
+        match next_tk {
+            Some(data) => {
+                if data.token_type != Operand::Dot.into() {
+                    Ok(start.clone())
+                } else {
+                    let next_tk = self
+                        .tokens
+                        .expect_and_progress(TokenType::Identifier)
+                        .expect_ext(TokenType::Identifier)?;
+
+                    *start += &(next_tk.data.unwrap());
+                    self.try_value_element_access(start)?;
+
+                    Ok(start.clone())
+                }
+            }
+            None => Error::Eof(Operand::Dot.into()).wrap(),
+        }
+    }
+
+    pub fn try_call_parameters(&mut self) -> Result<Expr> {
+        todo!()
+    }
+
+    pub fn try_binop(&mut self) -> Result<Expr> {
+        error!().wrap()
+    }
+
+    pub fn try_operand(&mut self, op: Operand) -> Result<Expr> {
         error!().wrap()
     }
 }
