@@ -227,7 +227,7 @@ impl Parser {
     /// It will go from `a` to 20
     pub fn try_value_until(&mut self, end: Operand) -> Result<Expr> {
         let token = self.tokens.next().eof_error()?;
-        let result = match token.token_type {
+        match token.token_type {
             TokenType::Identifier => {
                 let start = &mut token.data.unwrap();
                 let identifier = Expr::variable_ref(self.try_value_element_access(start)?);
@@ -242,9 +242,7 @@ impl Parser {
                 Ok(self.try_operand(op)?)
             }
             _ => error!("unexpected token!").wrap(),
-        };
-
-        result
+        }
     }
 
     // Used to parse expressions like `foo.bar.silly.etc`
