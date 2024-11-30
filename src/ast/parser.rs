@@ -1,5 +1,6 @@
 use super::{
-    token::Keyword, Error, ExpectUtils, Expr, Lexer, Operand, Result, Token, TokenIter, TokenType,
+    token::Keyword, EofFoundUtils, Error, ExpectUtils, Expr, Lexer, Operand, Result, Token,
+    TokenIter, TokenType,
 };
 use crate::error;
 use std::collections::HashMap;
@@ -196,14 +197,14 @@ impl Parser {
     /// `fn main() ...` -> `None`
     /// `fn test(a: i32, b: f64) -> i32 ...` -> `Ok("i32")`
     pub fn try_function_return_type(&mut self) -> Result<Option<String>> {
-        let token = self.tokens.current().ok_or(error!("found EOF!"))?;
+        let token = self.tokens.current().eof_error()?;
 
         if token.token_type == Operand::LFigure.into() {
             return Ok(None);
         } else if token.token_type == Operand::Minus.into() {
             self.tokens.progress();
-            let more_token = self.tokens.next().ok_or(error!("found EOF!"))?;
-            let type_identifier = self.tokens.next().ok_or(error!("found EOF!"))?;
+            let more_token = self.tokens.next().eof_error()?;
+            let type_identifier = self.tokens.next().eof_error()?;
 
             if more_token.token_type == Operand::More.into()
                 && type_identifier.token_type == TokenType::Identifier
