@@ -121,7 +121,7 @@ impl Parser {
         Ok(Expr::Block(vec![]))
     }
 
-    /// Attempt to parse a type map
+    /// Attempt to parse a type map.
     /// A type map is an expression which looks like this:
     /// ```blum
     /// <any> expr: type <sep> expr2: type2 <sep> ... <end>
@@ -200,10 +200,10 @@ impl Parser {
         Ok((token.data.unwrap(), ptype.data.unwrap()))
     }
 
-    /// Try to parse the return type of the function
-    /// It will return `Ok(None)` if the function's return type is void
+    /// Try to parse the return type of the function.
+    /// It will return `Ok(None)` if the function's return type is void.
     /// `fn main() ...` -> `None`
-    /// `fn test(a: i32, b: f64) -> i32 ...` -> Ok("i32")
+    /// `fn test(a: i32, b: f64) -> i32 ...` -> `Ok("i32")`
     pub fn try_function_return_type(&mut self) -> Result<Option<String>> {
         let token = self.tokens.current().ok_or(error!("found EOF!"))?;
 
@@ -226,7 +226,7 @@ impl Parser {
         error!().wrap()
     }
 
-    /// Parse an expression until a token with type `until` is met
+    /// Parse an expression until a token with type `until` is met.
     /// For example:
     /// ```blum
     /// return a + 20;
