@@ -69,20 +69,19 @@ impl ExpectUtils for Option<(bool, Token)> {
     type Output = Token;
 
     fn expect_ext(&self, expected: TokenType) -> Result<Self::Output> {
-        match self {
-            Some(data) => {
-                if data.0 {
-                    Ok(data.1.clone())
-                } else {
-                    Error::Expect {
-                        expected,
-                        found: data.1.token_type.clone(),
-                    }
-                    .wrap()
+        if let Some(data) = self {
+            return if data.0 {
+                Ok(data.1.clone())
+            } else {
+                Error::Expect {
+                    expected,
+                    found: data.1.token_type.clone(),
                 }
-            }
-            None => Error::EOF(expected).wrap(),
+                .wrap()
+            };
         }
+
+        Error::EOF(expected).wrap()
     }
 }
 
