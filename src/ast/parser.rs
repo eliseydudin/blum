@@ -114,6 +114,40 @@ impl Parser {
         Ok(Expr::Block(vec![]))
     }
 
+    // Helper for [`Self::try_type_map`]
+    pub fn try_type_map_helper(
+        &mut self,
+        result: &mut HashMap<String, String>,
+        next: Option<Token>,
+        end: Operand,
+        sep: Operand,
+    ) -> Result<bool> {
+        match next {
+            Some(tk) => {
+                if tk.token_type == end.into() {
+                    return Ok(false);
+                }
+
+                let to_insert = self.try_type_map_next(tk)?;
+                result.insert(to_insert.0, to_insert.1);
+
+                let sep_t = self
+                    .tokens
+                    .expect_and_progress(sep)
+                    .ok_or(Error::EOF(sep.into()))?;
+
+                if sep_t.0 {
+                    return Ok(true);
+                } else if sep_t.1.token_type == end.into() {
+                    return Ok(false);
+                }
+            }
+            None => return error!("`try_type_map` never found `end`!").wrap(),
+        };
+
+        Ok(true)
+    }
+
     /// Attempt to parse a type map.
     /// A type map is an expression which looks like this:
     /// ```blum
@@ -133,27 +167,9 @@ impl Parser {
 
         loop {
             let token = self.tokens.next();
-            match token {
-                Some(next) => {
-                    if next.token_type == end.into() {
-                        break;
-                    }
-
-                    let to_insert = self.try_type_map_next(next)?;
-                    result.insert(to_insert.0, to_insert.1);
-
-                    let sep_t = self
-                        .tokens
-                        .expect_and_progress(sep)
-                        .ok_or(Error::EOF(sep.into()))?;
-
-                    if sep_t.0 {
-                        continue;
-                    } else if sep_t.1.token_type == end.into() {
-                        return Ok(result);
-                    }
-                }
-                None => return error!("`try_type_map` never found `end`!").wrap(),
+            let cont = self.try_type_map_helper(&mut result, token, end, sep)?;
+            if !cont {
+                break;
             }
         }
 
