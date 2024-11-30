@@ -68,7 +68,7 @@ impl Parser {
 
         // we can do .unwrap since [`TokenType::Identifier`] always has some data
         let name = identifier.1.data.unwrap();
-        let params = self.try_type_map(Operand::RParen)?;
+        let params = self.try_type_map(Operand::RParen, Operand::Coma)?;
         let rettype = self
             .try_function_return_type()?
             .unwrap_or("void".to_owned());
@@ -98,7 +98,7 @@ impl Parser {
         Ok(Expr::Block(vec![]))
     }
 
-    pub fn try_type_map(&mut self, end: Operand) -> Result<HashMap<String, String>> {
+    pub fn try_type_map(&mut self, end: Operand, sep: Operand) -> Result<HashMap<String, String>> {
         let mut result = HashMap::new();
 
         loop {
@@ -112,14 +112,14 @@ impl Parser {
                     let to_insert = self.try_type_map_next(next)?;
                     result.insert(to_insert.0, to_insert.1);
 
-                    let coma = self
+                    let sep_t = self
                         .tokens
-                        .expect_and_progress(Operand::Coma)
-                        .ok_or(Error::EOF(Operand::Coma.into()))?;
+                        .expect_and_progress(sep)
+                        .ok_or(Error::EOF(sep.into()))?;
 
-                    if coma.0 {
+                    if sep_t.0 {
                         continue;
-                    } else if coma.1.token_type == end.into() {
+                    } else if sep_t.1.token_type == end.into() {
                         return Ok(result);
                     }
                 }
