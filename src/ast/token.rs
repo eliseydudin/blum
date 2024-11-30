@@ -46,6 +46,15 @@ pub enum Operand {
     Not, // !
 }
 
+impl Operand {
+    pub fn is_mathematical(&self) -> bool {
+        match self {
+            Self::Plus | Self::Minus | Self::Mult | Self::Div | Self::Mod => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum TokenType {
     Integer,
@@ -54,6 +63,22 @@ pub enum TokenType {
     Operand(Operand),
     Keyword(Keyword),
     Error(&'static str),
+}
+
+impl TokenType {
+    pub fn is_mathematical_op(&self) -> bool {
+        match self {
+            Self::Operand(op) => op.is_mathematical(),
+            _ => false,
+        }
+    }
+
+    pub fn to_operand(self) -> Operand {
+        match self {
+            Self::Operand(op) => op,
+            _ => unreachable!(),
+        }
+    }
 }
 
 impl From<Operand> for TokenType {

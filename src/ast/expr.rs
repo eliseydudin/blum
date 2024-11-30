@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum BinOp {
     Add,
     Sub,
@@ -8,7 +8,7 @@ pub enum BinOp {
     Mult,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Integer(i128),
     Float(f64),
@@ -16,7 +16,7 @@ pub enum Value {
     VariableRef(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     BinOp {
         op: BinOp,
@@ -32,6 +32,7 @@ pub enum Expr {
     Block(Vec<Expr>),
     Value(Value),
     Null,
+    Not(Box<Expr>),
 }
 
 impl Expr {

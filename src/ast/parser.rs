@@ -1,9 +1,8 @@
 use super::{
-    token::Keyword, EofFoundUtils, Error, ExpectUtils, Expr, Lexer, Operand, Result, Token,
-    TokenIter, TokenType,
+    expr::Value, token::Keyword, EofFoundUtils, Error, ExpectUtils, Expr, Lexer, Operand, Result,
+    Token, TokenIter, TokenType,
 };
 use crate::error;
-use core::error;
 use std::collections::HashMap;
 
 pub struct Parser {
@@ -225,17 +224,26 @@ impl Parser {
     /// return a + 20;
     /// ```
     /// It will go from `a` to 20
-    pub fn try_value_until(&mut self, end: Operand) -> Result<Expr> {
+    pub fn try_value_until(&mut self, end: Option<Operand>) -> Result<Expr> {
         let token = self.tokens.next().eof_error()?;
         match token.token_type {
             TokenType::Identifier => {
                 let start = &mut token.data.unwrap();
                 let identifier = Expr::variable_ref(self.try_value_element_access(start)?);
+                let next = match self.tokens.next() {
+                    Some(tk) => tk,
+                    None => return Ok(identifier),
+                };
+
+                if next.token_type.is_mathematical_op() {
+                    let expr = self.try_binop(identifier, next.token_type.to_operand())?;
+                    return Ok(expr);
+                }
 
                 Ok(Expr::Null)
             }
             TokenType::Operand(op) => {
-                if op == end {
+                if Some(op) == end {
                     return Ok(Expr::Null);
                 }
 
@@ -272,11 +280,34 @@ impl Parser {
         todo!()
     }
 
-    pub fn try_binop(&mut self) -> Result<Expr> {
+    #[allow(unused_variables)]
+    pub fn try_binop(&mut self, lhand: Expr, op: Operand) -> Result<Expr> {
         error!().wrap()
     }
 
     pub fn try_operand(&mut self, op: Operand) -> Result<Expr> {
+        if op == Operand::Plus || op == Operand::Minus {
+            return self.try_operand_math(op);
+        }
+
         error!().wrap()
+    }
+
+    pub fn try_operand_math(&mut self, op: Operand) -> Result<Expr> {
+        let next = self.try_value_until(None)?;
+        match next {
+            Expr::Value(ref v) => {
+                if let Value::String(_) = v {
+                    return error!("cannout apply a mathematical expression to a string!").wrap();
+                }
+
+                if op == Operand::Minus {
+                    return Ok(Expr::Not(Box::new(Expr::Value(v.clone()))));
+                } else {
+                    return Ok(next);
+                }
+            }
+            _ => unreachable!(),
+        };
     }
 }
