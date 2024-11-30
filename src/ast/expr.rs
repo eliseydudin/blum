@@ -9,6 +9,14 @@ pub enum BinOp {
 }
 
 #[derive(Debug)]
+pub enum Value {
+    Integer(i128),
+    Float(f64),
+    String(String),
+    VariableRef(String),
+}
+
+#[derive(Debug)]
 pub enum Expr {
     BinOp {
         op: BinOp,
@@ -22,4 +30,5 @@ pub enum Expr {
         body: Box<Expr>,
     },
     Block(Vec<Expr>),
+    Value(Value),
 }

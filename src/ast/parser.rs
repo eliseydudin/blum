@@ -18,6 +18,8 @@ impl Parser {
         Self { ast, tokens }
     }
 
+    /// Parse the [`Self::tokens`] into a `Vec<Expr>`
+    /// Returns errors if any were found
     pub fn parse(&mut self) -> Vec<Error> {
         let mut errors = vec![];
 
@@ -31,6 +33,7 @@ impl Parser {
         errors
     }
 
+    /// Attempt to parse the given tokens
     pub fn parse_next(&mut self, token: Token) -> Result<Expr> {
         match token.token_type {
             TokenType::Keyword(kw) => self.try_keyword(kw),
@@ -39,13 +42,32 @@ impl Parser {
         }
     }
 
+    /// Matches the given keyword to attempt building the AST
     pub fn try_keyword(&mut self, kw: Keyword) -> Result<Expr> {
         match kw {
             Keyword::Fn => self.try_function(),
-            _ => error!().wrap(),
+            _ => error!("currently only `Keyword::Fn` is supported").wrap(),
         }
     }
 
+    /// Try parsing a function definition
+    /// ```blum
+    /// fn main() {
+    ///     // nothing here
+    /// }
+    /// ```
+    /// `try_function` will build the following AST:
+    /// ```text
+    /// Function {
+    ///     name: "main",
+    ///     rettype: "void",
+    ///     params: {},
+    ///     body: Block(
+    ///        [],
+    ///     ),
+    /// },
+    /// ```
+    ///
     pub fn try_function(&mut self) -> Result<Expr> {
         let identifier = self
             .tokens
@@ -82,6 +104,7 @@ impl Parser {
         })
     }
 
+    /// Attempt to parse a block
     pub fn try_block(&mut self) -> Result<Expr> {
         eprintln!("warning! `try_block` currently does nothing!");
         loop {
@@ -98,6 +121,20 @@ impl Parser {
         Ok(Expr::Block(vec![]))
     }
 
+    /// Attempt to parse a type map
+    /// A type map is an expression which looks like this:
+    /// ```blum
+    /// <any> expr: type <sep> expr2: type2 <sep> ... <end>
+    /// ```
+    /// This could be used in functions
+    /// ```blum
+    /// fn test(a: i32, b: f64) ...
+    /// ```
+    /// Or in type definition
+    /// ```blum
+    /// type Sum = {a: i32, b: f64}; // sep = "," end = "}"
+    /// type Alg = {a: i32 | b: f64}; // sep = "|" end = "}"
+    /// ```
     pub fn try_type_map(&mut self, end: Operand, sep: Operand) -> Result<HashMap<String, String>> {
         let mut result = HashMap::new();
 
@@ -130,6 +167,7 @@ impl Parser {
         Ok(result)
     }
 
+    /// Attempt to parse the next element of the current type map
     pub fn try_type_map_next(&mut self, token: Token) -> Result<(String, String)> {
         match self.tokens.expect_and_progress(Operand::Colon) {
             Some(data) => {
@@ -162,6 +200,10 @@ impl Parser {
         Ok((token.data.unwrap(), ptype.data.unwrap()))
     }
 
+    /// Try to parse the return type of the function
+    /// It will return `Ok(None)` if the function's return type is void
+    /// `fn main() ...` -> `None`
+    /// `fn test(a: i32, b: f64) -> i32 ...` -> Ok("i32")
     pub fn try_function_return_type(&mut self) -> Result<Option<String>> {
         let token = self.tokens.current().ok_or(error!("found EOF!"))?;
 
@@ -181,6 +223,16 @@ impl Parser {
             }
         }
 
+        error!().wrap()
+    }
+
+    /// Parse an expression until a token with type `until` is met
+    /// For example:
+    /// ```blum
+    /// return a + 20;
+    /// ```
+    /// It will go from `a` to 20
+    pub fn try_value_until(&mut self, until: Operand) -> Result<Expr> {
         error!().wrap()
     }
 }
