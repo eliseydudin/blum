@@ -70,11 +70,11 @@ pub struct Token {
 }
 
 impl Token {
-    pub const fn error(err: &'static str) -> Token {
+    pub const fn error(err: &'static str, pos: usize) -> Token {
         Token {
             token_type: TokenType::Error(err),
             data: None,
-            pos: 0,
+            pos,
         }
     }
 }

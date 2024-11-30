@@ -34,7 +34,9 @@ impl<'a> Lexer<'a> {
             } else {
                 match self.try_char(char) {
                     Some(tk) => self.tokens.push(tk),
-                    None => self.tokens.push(Token::error("unknown character")),
+                    None => self
+                        .tokens
+                        .push(Token::error("unknown character", self.current_position())),
                 };
             }
         }
@@ -120,7 +122,10 @@ impl<'a> Lexer<'a> {
                     self.tokens.push(self.token(data, token_type));
                     self.tokens.push(t);
                 } else {
-                    self.tokens.push(Token::error("unknown integer literal"));
+                    self.tokens.push(Token::error(
+                        "unknown integer literal",
+                        self.current_position(),
+                    ));
                 }
 
                 return;
@@ -152,7 +157,10 @@ impl<'a> Lexer<'a> {
                     self.tokens.push(self.token(data, token_type));
                     self.tokens.push(t);
                 } else {
-                    self.tokens.push(Token::error("unknown string literal"));
+                    self.tokens.push(Token::error(
+                        "unknown string literal",
+                        self.current_position(),
+                    ));
                 }
 
                 return;
