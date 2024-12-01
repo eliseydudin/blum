@@ -1,4 +1,4 @@
-use super::{Token, TokenType};
+use super::TokenType;
 use std::{error::Error as ErrorTrait, fmt::Display};
 
 #[derive(Debug)]
@@ -57,49 +57,6 @@ macro_rules! error {
     ($msg:tt) => {
         $crate::ast::Error::new(format!("{}", $msg))
     };
-}
-
-pub trait ExpectUtils {
-    type Output;
-
-    fn expect_ext(&self, expected: TokenType) -> Result<Self::Output>;
-}
-
-impl ExpectUtils for Option<(bool, Token)> {
-    type Output = Token;
-
-    fn expect_ext(&self, expected: TokenType) -> Result<Self::Output> {
-        if let Some(data) = self {
-            return if data.0 {
-                Ok(data.1.clone())
-            } else {
-                Error::Expect {
-                    expected,
-                    found: data.1.token_type.clone(),
-                }
-                .wrap()
-            };
-        }
-
-        Error::Eof(expected).wrap()
-    }
-}
-
-pub trait EofFoundUtils {
-    type Output;
-
-    fn eof_error(self) -> Result<Self::Output>;
-}
-
-impl EofFoundUtils for Option<Token> {
-    type Output = Token;
-
-    fn eof_error(self) -> Result<Self::Output> {
-        match self {
-            Some(t) => Ok(t),
-            None => error!("found unexpected Eof!").wrap(),
-        }
-    }
 }
 
 /*
