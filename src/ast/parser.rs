@@ -8,7 +8,7 @@ pub struct Parser {
 impl Parser {
     pub fn new(buff: impl Into<String>) -> Self {
         let chars: String = buff.into();
-        let tokens = Lexer::new(chars.chars()).parse().finish();
+        let tokens = Lexer::new(&chars).parse().finish();
         let tokens = TokenIter::new(tokens);
         let ast = vec![];
 
