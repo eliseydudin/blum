@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum BinOp {
     Add,
@@ -23,20 +21,5 @@ pub enum Expr {
         lhand: Box<Expr>,
         rhand: Box<Expr>,
     },
-    Function {
-        name: String,
-        rettype: String,
-        params: HashMap<String, String>,
-        body: Box<Expr>,
-    },
-    Block(Vec<Expr>),
     Value(Value),
-    Null,
-    Not(Box<Expr>),
-}
-
-impl Expr {
-    pub fn variable_ref(var: String) -> Self {
-        Expr::Value(Value::VariableRef(var))
-    }
 }
