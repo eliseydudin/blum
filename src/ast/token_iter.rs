@@ -14,15 +14,17 @@ impl TokenIter {
         Self { tokens, counter }
     }
 
-    pub fn next(&self) {
+    pub fn next(&self) -> Option<Token> {
         self.counter.set(self.counter.get() + 1);
+        self.current()
     }
 
-    pub fn back(&self) {
+    pub fn back(&self) -> Option<Token> {
         self.counter.set(self.counter.get() - 1);
+        self.current()
     }
 
-    pub fn get(&self) -> Option<Token> {
+    pub fn current(&self) -> Option<Token> {
         self.tokens.get(self.counter.get()).cloned()
     }
 }
