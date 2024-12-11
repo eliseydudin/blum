@@ -24,7 +24,7 @@ impl InputStream {
 
     pub fn peek(&self) -> Option<char> {
         let s = self.source.get(self.pos);
-        return s.cloned();
+        s.cloned()
     }
 }
 impl Iterator for InputStream {
@@ -41,6 +41,6 @@ impl Iterator for InputStream {
             self.col += 1;
         }
 
-        return tk;
+        tk
     }
 }

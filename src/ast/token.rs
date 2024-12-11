@@ -1,0 +1,45 @@
+pub enum TokenType {
+    LeftParen,
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    Comma,
+    Colon,
+    Dot,
+    Minus,
+    Plus,
+    QuestionMark,
+    Semicolon,
+    Slash,
+    Star,
+
+    Bang,
+    BangEqual,
+    Equal,
+    EqualEqual,
+    Greated,
+    GreaterEqual,
+    Less,
+    LessEqual,
+
+    // Literals.
+    Identifier,
+    String,
+    Number,
+
+    // Keywords.
+    And,
+    Break,
+    Else,
+    False,
+    For,
+    Fun,
+    If,
+    Or,
+    Return,
+    True,
+    Let,
+    While,
+
+    Eof,
+}
