@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum TokenType {
     LeftParen,
     RightParen,
@@ -42,4 +43,28 @@ pub enum TokenType {
     While,
 
     Eof,
+}
+
+#[derive(Debug, Clone)]
+pub struct Token {
+    pub ttype: TokenType,
+    pub lexeme: String,
+    pub line: usize,
+    pub literal: Option<String>,
+}
+
+impl Token {
+    pub const fn new(
+        ttype: TokenType,
+        lexeme: String,
+        line: usize,
+        literal: Option<String>,
+    ) -> Self {
+        Self {
+            ttype,
+            lexeme,
+            line,
+            literal,
+        }
+    }
 }
