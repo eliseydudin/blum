@@ -178,7 +178,7 @@ impl TokenStream {
         }
 
         let mut str = String::new();
-        let source = &self.source[self.start + 1..self.current - 1];
+        let source = &self.source[self.start + 1..self.current];
         for ch in source {
             str.push(ch.clone());
         }
@@ -202,5 +202,14 @@ pub mod tests {
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::String);
+    }
+
+    #[test]
+    pub fn number_lex() {
+        let source = "10";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+
+        assert_eq!(tokens[0].ttype, TokenType::Number);
     }
 }
