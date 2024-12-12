@@ -182,7 +182,10 @@ impl TokenStream {
         }
 
         let mut str = String::new();
-        let source = &self.source[self.start + 1..self.current];
+        if has_dot {
+            self.current += 1;
+        }
+        let source = &self.source[self.start..self.current];
         for ch in source {
             str.push(ch.clone());
         }
@@ -191,7 +194,21 @@ impl TokenStream {
     }
 
     pub fn try_identifier(&mut self) -> () {
-        todo!()
+        while let Some(next) = self.peek() {
+            if next.is_ascii_alphanumeric() {
+                self.advance();
+            } else {
+                break;
+            }
+        }
+
+        let mut str = String::new();
+        let source = &self.source[self.start..=self.current];
+        for ch in source {
+            str.push(ch.clone());
+        }
+
+        self.add_token(TokenType::Number, Some(str));
     }
 }
 
@@ -224,6 +241,7 @@ pub mod tests {
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Number);
+        assert_eq!(tokens[0].literal, Some("10.20".to_owned()))
     }
 
     #[test]
