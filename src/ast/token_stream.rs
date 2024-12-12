@@ -23,9 +23,17 @@ impl TokenStream {
         }
     }
 
+    pub fn lex(mut self) -> Vec<Token> {
+        while !self.is_eof() {
+            self.scan_token();
+        }
+
+        self.tokens
+    }
+
     pub fn advance(&mut self) -> Option<char> {
         self.current += 1;
-        self.source.get(self.current).cloned()
+        self.source.get(self.current - 1).cloned()
     }
 
     pub fn peek(&self) -> Option<char> {
@@ -180,5 +188,19 @@ impl TokenStream {
 
     pub fn try_identifier(&mut self) -> () {
         todo!()
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::{TokenStream, TokenType};
+
+    #[test]
+    pub fn string_lex() {
+        let source = "\"foobar\"";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+
+        assert_eq!(tokens[0].ttype, TokenType::String);
     }
 }
