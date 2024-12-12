@@ -169,8 +169,12 @@ impl TokenStream {
                 self.advance();
             } else if next == '.' && !has_dot {
                 has_dot = true;
+                self.advance();
             } else if next == '.' {
                 println!("Multi dot number literal");
+                while self.peek().is_some_and(|f| f.is_whitespace()) || !self.is_eof() {
+                    self.advance();
+                }
                 return;
             } else {
                 println!("Unknown character while parsing a number literal");
@@ -211,5 +215,24 @@ pub mod tests {
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Number);
+    }
+
+    #[test]
+    pub fn float_lex() {
+        let source = "10.20";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+
+        assert_eq!(tokens[0].ttype, TokenType::Number);
+    }
+
+    #[test]
+    pub fn float_lex_with_error() {
+        let source = "10.20.30";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+
+        println!("{:#?}", tokens);
+        assert!(tokens.is_empty());
     }
 }
