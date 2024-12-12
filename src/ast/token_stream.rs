@@ -8,7 +8,6 @@ pub struct TokenStream {
     start: usize,
     current: usize,
     line: usize,
-    line_pos: usize,
 }
 
 impl TokenStream {
@@ -22,7 +21,6 @@ impl TokenStream {
             start: 0,
             current: 0,
             line: 0,
-            line_pos: 0,
         }
     }
 
@@ -37,7 +35,6 @@ impl TokenStream {
 
     pub fn advance(&mut self) -> Option<char> {
         self.current += 1;
-        self.line_pos += 1;
         self.source.get(self.current - 1).cloned()
     }
 
@@ -130,7 +127,6 @@ impl TokenStream {
             }
             '\n' => {
                 self.line += 1;
-                self.line_pos = 0;
             }
             n if n.is_whitespace() => (),
             '"' => self.try_string(),
@@ -145,22 +141,24 @@ impl TokenStream {
     }
 
     pub fn try_string(&mut self) {
+        let mut closed = false;
         while let Some(next) = self.peek() {
             if next == '\n' {
                 self.line += 1;
             } else if next == '"' {
-                self.advance();
+                closed = true;
                 break;
             }
             self.advance();
         }
 
-        if self.is_eof() {
+        if !closed {
             self.throw_exception("String was never closed".to_owned());
             return;
         }
 
-        self.advance();
+        // no fucking clue how this works
+        self.current += 2;
         let mut str = String::new();
         let source = &self.source[self.start + 1..self.current - 1];
         for ch in source {
@@ -231,7 +229,7 @@ impl TokenStream {
     }
 
     pub fn throw_exception(&self, message: String) {
-        let exception = SourceException::new((self.line, self.line_pos), message);
+        let exception = SourceException::new(self.line, message);
         throw!(exception);
     }
 }

@@ -30,6 +30,6 @@ impl Handler {
         }
 
         let at = error.at();
-        eprintln!("\x1b[0;31merror\x1b[0m({}:{}): {error}", at.0, at.1);
+        eprintln!("\x1b[0;31merror\x1b[0m(line {}): {error}", at);
     }
 }
