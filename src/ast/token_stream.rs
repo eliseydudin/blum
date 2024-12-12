@@ -232,7 +232,6 @@ pub mod tests {
         let lexer = TokenStream::new(source);
         let tokens = lexer.lex();
 
-        println!("{:#?}", tokens);
         assert!(tokens.is_empty());
     }
 }
