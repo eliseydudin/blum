@@ -32,6 +32,10 @@ impl TokenStream {
         self.source.get(self.current + 1).cloned()
     }
 
+    pub fn peek_ahead(&self) -> Option<char> {
+        self.source.get(self.current + 2).cloned()
+    }
+
     pub fn add_token(&mut self, ttype: TokenType, data: Option<String>) {
         let mut lexeme = String::new();
         let text = &self.source[self.start..self.current];
@@ -150,7 +154,28 @@ impl TokenStream {
     }
 
     pub fn try_number(&mut self) -> () {
-        todo!()
+        let mut has_dot = false;
+
+        while let Some(next) = self.peek() {
+            if next.is_ascii_digit() {
+                self.advance();
+            } else if next == '.' && !has_dot {
+                has_dot = true;
+            } else if next == '.' {
+                println!("Multi dot number literal");
+                return;
+            } else {
+                println!("Unknown character while parsing a number literal");
+            }
+        }
+
+        let mut str = String::new();
+        let source = &self.source[self.start + 1..self.current - 1];
+        for ch in source {
+            str.push(ch.clone());
+        }
+
+        self.add_token(TokenType::Number, Some(str));
     }
 
     pub fn try_identifier(&mut self) -> () {
