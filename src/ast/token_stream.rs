@@ -122,8 +122,31 @@ impl TokenStream {
         }
     }
 
+    pub fn is_eof(&self) -> bool {
+        self.current >= self.source.len()
+    }
+
     pub fn try_string(&mut self) -> () {
-        todo!()
+        while let Some(next) = self.peek() {
+            if next == '\n' {
+                self.line += 1;
+            }
+            self.advance();
+        }
+
+        if self.is_eof() {
+            println!("String was never closed");
+            return;
+        }
+
+        self.advance();
+        let mut str = String::new();
+        let source = &self.source[self.start + 1..self.current - 1];
+        for ch in source {
+            str.push(ch.clone());
+        }
+
+        self.add_token(TokenType::String, Some(str));
     }
 
     pub fn try_number(&mut self) -> () {
