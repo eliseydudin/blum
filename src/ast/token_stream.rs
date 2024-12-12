@@ -1,4 +1,5 @@
 use super::token::{Token, TokenType};
+use crate::throw;
 
 pub struct TokenStream {
     source: Vec<char>,
@@ -130,7 +131,7 @@ impl TokenStream {
             n if n.is_ascii_digit() => self.try_number(),
             n if n.is_ascii_alphabetic() => self.try_identifier(),
             unknown => {
-                println!("Unknown character {unknown}")
+                throw!(format!("Unknown character {unknown}"));
             }
         }
     }
