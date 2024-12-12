@@ -50,7 +50,7 @@ impl TokenStream {
         let text = &self.source[self.start..self.current];
 
         for ch in text {
-            lexeme.push(ch.clone())
+            lexeme.push(*ch)
         }
 
         let new_token = Token::new(ttype, lexeme, self.line, data);
@@ -61,7 +61,7 @@ impl TokenStream {
         self.add_token(ttype, None);
     }
 
-    pub fn scan_token(&mut self) -> () {
+    pub fn scan_token(&mut self) {
         let next = match self.advance() {
             Some(n) => n,
             None => {
@@ -139,7 +139,7 @@ impl TokenStream {
         self.current >= self.source.len()
     }
 
-    pub fn try_string(&mut self) -> () {
+    pub fn try_string(&mut self) {
         while let Some(next) = self.peek() {
             if next == '\n' {
                 self.line += 1;
@@ -159,13 +159,13 @@ impl TokenStream {
         let mut str = String::new();
         let source = &self.source[self.start + 1..self.current - 1];
         for ch in source {
-            str.push(ch.clone());
+            str.push(*ch);
         }
 
         self.add_token(TokenType::String, Some(str));
     }
 
-    pub fn try_number(&mut self) -> () {
+    pub fn try_number(&mut self) {
         let mut has_dot = false;
 
         while let Some(next) = self.peek() {
@@ -195,13 +195,13 @@ impl TokenStream {
         }
         let source = &self.source[self.start..self.current];
         for ch in source {
-            str.push(ch.clone());
+            str.push(*ch);
         }
 
         self.add_token(TokenType::Number, Some(str));
     }
 
-    pub fn try_identifier(&mut self) -> () {
+    pub fn try_identifier(&mut self) {
         while let Some(next) = self.peek() {
             if next.is_ascii_alphanumeric() {
                 self.advance();
@@ -215,7 +215,7 @@ impl TokenStream {
         self.current += 1;
         let source = &self.source[self.start..self.current];
         for ch in source {
-            str.push(ch.clone());
+            str.push(*ch);
         }
 
         if let Ok(kw) = str.as_str().try_into() {
