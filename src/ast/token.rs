@@ -34,7 +34,7 @@ pub enum TokenType {
     Else,
     False,
     For,
-    Fun,
+    Fn,
     If,
     Or,
     Return,
@@ -43,6 +43,28 @@ pub enum TokenType {
     While,
 
     Eof,
+}
+
+impl<'a> TryInto<TokenType> for &'a str {
+    type Error = ();
+
+    fn try_into(self) -> Result<TokenType, Self::Error> {
+        match self {
+            "and" => Ok(TokenType::And),
+            "break" => Ok(TokenType::Break),
+            "else" => Ok(TokenType::Else),
+            "false" => Ok(TokenType::False),
+            "for" => Ok(TokenType::For),
+            "fn" => Ok(TokenType::Fn),
+            "if" => Ok(TokenType::If),
+            "or" => Ok(TokenType::Or),
+            "return" => Ok(TokenType::Return),
+            "true" => Ok(TokenType::True),
+            "let" => Ok(TokenType::Let),
+            "while" => Ok(TokenType::While),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
