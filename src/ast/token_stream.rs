@@ -156,7 +156,7 @@ impl TokenStream {
         }
 
         if self.is_eof() {
-            println!("String was never closed");
+            self.throw_exception("String was never closed".to_owned());
             return;
         }
 
@@ -180,14 +180,13 @@ impl TokenStream {
                 has_dot = true;
                 self.advance();
             } else if next == '.' {
-                println!("Multi dot number literal");
+                self.throw_exception("Multi dot number literal".to_owned());
                 while self.peek().is_some_and(|f| f.is_whitespace()) || !self.is_eof() {
                     self.advance();
                 }
                 return;
             } else if next.is_ascii_alphabetic() {
-                println!("Unknown character while parsing a number literal");
-                self.advance();
+                self.throw_exception("Unknown character while parsing a number literal".to_owned());
                 return;
             } else {
                 break;
