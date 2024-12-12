@@ -209,6 +209,11 @@ impl TokenStream {
             str.push(ch.clone());
         }
 
+        if let Ok(kw) = str.as_str().try_into() {
+            self.add_token_small(kw);
+            return;
+        }
+
         self.add_token(TokenType::Identifier, Some(str));
     }
 }
@@ -262,5 +267,15 @@ pub mod tests {
 
         assert_eq!(tokens[0].ttype, TokenType::Identifier);
         assert_eq!(tokens[0].literal, Some("foo".to_owned()))
+    }
+
+    #[test]
+    pub fn identifier_keyword_lex() {
+        let source = "return";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+
+        assert_eq!(tokens[0].ttype, TokenType::Return);
+        assert_eq!(tokens[0].literal, None)
     }
 }
