@@ -293,9 +293,29 @@ pub mod tests {
         let source = "fn main() {\n return \"foo\" * bar / 10.25;\n}";
         let lexer = TokenStream::new(source);
         let tokens = lexer.lex();
-        println!("{tokens:#?}");
         let tokens: Vec<TokenType> = tokens.iter().map(|t| t.ttype.clone()).collect();
-        println!("{tokens:#?}");
+
+        assert_eq!(tokens[0], TokenType::Fn);
+        assert_eq!(tokens[1], TokenType::Identifier);
+        assert_eq!(tokens[2], TokenType::LeftParen);
+        assert_eq!(tokens[3], TokenType::RightParen);
+        assert_eq!(tokens[4], TokenType::LeftBrace);
+        assert_eq!(tokens[5], TokenType::Return);
+        assert_eq!(tokens[6], TokenType::String);
+        assert_eq!(tokens[7], TokenType::Star);
+        assert_eq!(tokens[8], TokenType::Identifier);
+        assert_eq!(tokens[9], TokenType::Slash);
+        assert_eq!(tokens[10], TokenType::Number);
+        assert_eq!(tokens[11], TokenType::Semicolon);
+        assert_eq!(tokens[12], TokenType::RightBrace);
+    }
+
+    #[test]
+    pub fn multiple_lex_no_spaces() {
+        let source = "fn main(){\nreturn\"foo\"*bar/10.25;\n}";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+        let tokens: Vec<TokenType> = tokens.iter().map(|t| t.ttype.clone()).collect();
 
         assert_eq!(tokens[0], TokenType::Fn);
         assert_eq!(tokens[1], TokenType::Identifier);
