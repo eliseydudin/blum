@@ -26,6 +26,7 @@ impl TokenStream {
     pub fn lex(mut self) -> Vec<Token> {
         while !self.is_eof() {
             self.scan_token();
+            self.start = self.current;
         }
 
         self.tokens
@@ -142,6 +143,9 @@ impl TokenStream {
         while let Some(next) = self.peek() {
             if next == '\n' {
                 self.line += 1;
+            } else if next == '"' {
+                self.advance();
+                break;
             }
             self.advance();
         }
@@ -176,8 +180,12 @@ impl TokenStream {
                     self.advance();
                 }
                 return;
-            } else {
+            } else if next.is_ascii_alphabetic() {
                 println!("Unknown character while parsing a number literal");
+                self.advance();
+                return;
+            } else {
+                break;
             }
         }
 
@@ -198,6 +206,7 @@ impl TokenStream {
             if next.is_ascii_alphanumeric() {
                 self.advance();
             } else {
+                //self.advance();
                 break;
             }
         }
@@ -277,5 +286,29 @@ pub mod tests {
 
         assert_eq!(tokens[0].ttype, TokenType::Return);
         assert_eq!(tokens[0].literal, None)
+    }
+
+    #[test]
+    pub fn multiple_lex() {
+        let source = "fn main() {\n return \"foo\" * bar / 10.25;\n}";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+        println!("{tokens:#?}");
+        let tokens: Vec<TokenType> = tokens.iter().map(|t| t.ttype.clone()).collect();
+        println!("{tokens:#?}");
+
+        assert_eq!(tokens[0], TokenType::Fn);
+        assert_eq!(tokens[1], TokenType::Identifier);
+        assert_eq!(tokens[2], TokenType::LeftParen);
+        assert_eq!(tokens[3], TokenType::RightParen);
+        assert_eq!(tokens[4], TokenType::LeftBrace);
+        assert_eq!(tokens[5], TokenType::Return);
+        assert_eq!(tokens[6], TokenType::String);
+        assert_eq!(tokens[7], TokenType::Star);
+        assert_eq!(tokens[8], TokenType::Identifier);
+        assert_eq!(tokens[9], TokenType::Slash);
+        assert_eq!(tokens[10], TokenType::Number);
+        assert_eq!(tokens[11], TokenType::Semicolon);
+        assert_eq!(tokens[12], TokenType::RightBrace);
     }
 }
