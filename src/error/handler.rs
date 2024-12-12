@@ -3,6 +3,8 @@ use std::{
     sync::{LazyLock, Mutex, MutexGuard},
 };
 
+use super::Exception;
+
 pub struct Handler {
     error_counter: usize,
 }
@@ -19,7 +21,7 @@ impl Handler {
         ERROR_LOCK.lock().unwrap()
     }
 
-    pub fn throw(&mut self, error: String) {
+    pub fn throw(&mut self, error: impl Exception) {
         self.error_counter += 1;
 
         if self.error_counter >= 20 {
@@ -27,6 +29,7 @@ impl Handler {
             exit(20)
         }
 
-        eprintln!("error: {error}");
+        let at = error.at();
+        eprintln!("\x1b[0;31merror\x1b[0m({}:{}): {error}", at.0, at.1);
     }
 }

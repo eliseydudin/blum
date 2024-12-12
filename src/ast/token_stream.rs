@@ -1,5 +1,5 @@
 use super::token::{Token, TokenType};
-use crate::throw;
+use crate::{error::SourceException, throw};
 
 pub struct TokenStream {
     source: Vec<char>,
@@ -8,6 +8,7 @@ pub struct TokenStream {
     start: usize,
     current: usize,
     line: usize,
+    line_pos: usize,
 }
 
 impl TokenStream {
@@ -20,7 +21,8 @@ impl TokenStream {
 
             start: 0,
             current: 0,
-            line: 1,
+            line: 0,
+            line_pos: 0,
         }
     }
 
@@ -35,6 +37,7 @@ impl TokenStream {
 
     pub fn advance(&mut self) -> Option<char> {
         self.current += 1;
+        self.line_pos += 1;
         self.source.get(self.current - 1).cloned()
     }
 
@@ -125,14 +128,15 @@ impl TokenStream {
                     self.add_token_small(TokenType::Slash);
                 }
             }
-            '\n' => self.line += 1,
+            '\n' => {
+                self.line += 1;
+                self.line_pos = 0;
+            }
             n if n.is_whitespace() => (),
             '"' => self.try_string(),
             n if n.is_ascii_digit() => self.try_number(),
             n if n.is_ascii_alphabetic() => self.try_identifier(),
-            unknown => {
-                throw!(format!("Unknown character {unknown}"));
-            }
+            unknown => self.throw_exception(format!("Unknown character {unknown}")),
         }
     }
 
@@ -225,6 +229,11 @@ impl TokenStream {
         }
 
         self.add_token(TokenType::Identifier, Some(str));
+    }
+
+    pub fn throw_exception(&self, message: String) {
+        let exception = SourceException::new((self.line, self.line_pos), message);
+        throw!(exception);
     }
 }
 
