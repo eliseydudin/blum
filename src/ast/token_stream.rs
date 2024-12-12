@@ -203,12 +203,13 @@ impl TokenStream {
         }
 
         let mut str = String::new();
-        let source = &self.source[self.start..=self.current];
+        self.current += 1;
+        let source = &self.source[self.start..self.current];
         for ch in source {
             str.push(ch.clone());
         }
 
-        self.add_token(TokenType::Number, Some(str));
+        self.add_token(TokenType::Identifier, Some(str));
     }
 }
 
@@ -251,5 +252,15 @@ pub mod tests {
         let tokens = lexer.lex();
 
         assert!(tokens.is_empty());
+    }
+
+    #[test]
+    pub fn identifier_lex() {
+        let source = "foo";
+        let lexer = TokenStream::new(source);
+        let tokens = lexer.lex();
+
+        assert_eq!(tokens[0].ttype, TokenType::Identifier);
+        assert_eq!(tokens[0].literal, Some("foo".to_owned()))
     }
 }
