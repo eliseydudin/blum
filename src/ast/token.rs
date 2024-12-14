@@ -72,6 +72,7 @@ pub struct Token {
     pub ttype: TokenType,
     pub lexeme: String,
     pub line: usize,
+    pub pos: usize,
     pub literal: Option<String>,
 }
 
@@ -80,6 +81,7 @@ impl Token {
         ttype: TokenType,
         lexeme: String,
         line: usize,
+        pos: usize,
         literal: Option<String>,
     ) -> Self {
         Self {
@@ -87,6 +89,7 @@ impl Token {
             lexeme,
             line,
             literal,
+            pos,
         }
     }
 }
