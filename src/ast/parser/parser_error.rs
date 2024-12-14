@@ -22,6 +22,13 @@ pub struct ParserException {
     cause: ParserCause,
 }
 
+impl ParserException {
+    pub fn expected_error(expected: TokenType, found: TokenType, pos: (usize, usize)) -> Self {
+        let cause = ParserCause::Expected(expected, found);
+        Self { cause, pos }
+    }
+}
+
 impl error::Error for ParserException {}
 
 impl fmt::Display for ParserException {
