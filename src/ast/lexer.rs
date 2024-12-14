@@ -257,6 +257,7 @@ pub mod tests {
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::String);
+        assert_eq!(tokens[0].literal, Some("foobar".to_owned()))
     }
 
     #[test]
@@ -266,6 +267,7 @@ pub mod tests {
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Number);
+        assert_eq!(tokens[0].literal, Some("10".to_owned()))
     }
 
     #[test]
