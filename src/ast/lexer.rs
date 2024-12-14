@@ -1,16 +1,17 @@
 use super::token::{Token, TokenType};
 use crate::{error::SourceException, throw};
 
-pub struct TokenStream {
+pub struct Lexer {
     source: Vec<char>,
     tokens: Vec<Token>,
 
     start: usize,
     current: usize,
     line: usize,
+    pos: usize,
 }
 
-impl TokenStream {
+impl Lexer {
     pub fn new(source: &str) -> Self {
         let source: Vec<char> = source.chars().collect();
 
@@ -21,6 +22,7 @@ impl TokenStream {
             start: 0,
             current: 0,
             line: 0,
+            pos: 0,
         }
     }
 
@@ -35,6 +37,7 @@ impl TokenStream {
 
     pub fn advance(&mut self) -> Option<char> {
         self.current += 1;
+        self.pos += 1;
         self.source.get(self.current - 1).cloned()
     }
 
@@ -127,6 +130,7 @@ impl TokenStream {
             }
             '\n' => {
                 self.line += 1;
+                self.pos = 0;
             }
             n if n.is_whitespace() => (),
             '"' => self.try_string(),
@@ -229,19 +233,19 @@ impl TokenStream {
     }
 
     pub fn throw_exception(&self, message: String) {
-        let exception = SourceException::new(self.line, message);
+        let exception = SourceException::new((self.line, self.pos), message);
         throw!(exception);
     }
 }
 
 #[cfg(test)]
 pub mod tests {
-    use super::{TokenStream, TokenType};
+    use super::{Lexer, TokenType};
 
     #[test]
     pub fn string_lex() {
         let source = "\"foobar\"";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::String);
@@ -250,7 +254,7 @@ pub mod tests {
     #[test]
     pub fn number_lex() {
         let source = "10";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Number);
@@ -259,7 +263,7 @@ pub mod tests {
     #[test]
     pub fn float_lex() {
         let source = "10.20";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Number);
@@ -269,7 +273,7 @@ pub mod tests {
     #[test]
     pub fn float_lex_with_error() {
         let source = "10.20.30";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
 
         assert!(tokens.is_empty());
@@ -278,7 +282,7 @@ pub mod tests {
     #[test]
     pub fn identifier_lex() {
         let source = "foo";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Identifier);
@@ -288,7 +292,7 @@ pub mod tests {
     #[test]
     pub fn identifier_keyword_lex() {
         let source = "return";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
 
         assert_eq!(tokens[0].ttype, TokenType::Return);
@@ -298,7 +302,7 @@ pub mod tests {
     #[test]
     pub fn multiple_lex() {
         let source = "fn main() {\n return \"foo\" * bar / 10.25;\n}";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
         let tokens: Vec<TokenType> = tokens.iter().map(|t| t.ttype.clone()).collect();
 
@@ -320,7 +324,7 @@ pub mod tests {
     #[test]
     pub fn multiple_lex_no_spaces() {
         let source = "fn main(){\nreturn\"foo\"*bar/10.25;\n}";
-        let lexer = TokenStream::new(source);
+        let lexer = Lexer::new(source);
         let tokens = lexer.lex();
         let tokens: Vec<TokenType> = tokens.iter().map(|t| t.ttype.clone()).collect();
 

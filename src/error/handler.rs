@@ -6,6 +6,7 @@ use std::{
 use super::Exception;
 
 pub struct Handler {
+    source_file: &'static str,
     error_counter: usize,
 }
 
@@ -13,7 +14,10 @@ static ERROR_LOCK: LazyLock<Mutex<Handler>> = LazyLock::new(|| Mutex::new(Handle
 
 impl Handler {
     pub fn new() -> Self {
-        Self { error_counter: 0 }
+        Self {
+            source_file: "none",
+            error_counter: 0,
+        }
     }
 
     pub fn lock<'a>() -> MutexGuard<'a, Handler> {
@@ -30,6 +34,9 @@ impl Handler {
         }
 
         let at = error.at();
-        eprintln!("\x1b[0;31merror\x1b[0m(line {}): {error}", at);
+        eprintln!(
+            "{}:{}:{} \x1b[0;31merror:\x1b[0m {error}",
+            self.source_file, at.0, at.1
+        );
     }
 }
