@@ -8,7 +8,7 @@ use super::Exception;
 #[derive(Default)]
 pub struct Handler {
     source_file: &'static str,
-    error_counter: usize,
+    pub error_counter: usize,
 }
 
 static ERROR_LOCK: LazyLock<Mutex<Handler>> = LazyLock::new(|| Mutex::new(Handler::new()));

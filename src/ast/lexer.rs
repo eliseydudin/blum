@@ -224,7 +224,9 @@ impl Lexer {
 
         let mut str = String::new();
 
-        if !self.source[self.current].is_whitespace() {
+        if self.is_eof() {
+            //self.current -= 1;
+        } else if !self.source[self.current].is_whitespace() {
             self.current += 1;
         }
         let source = &self.source[self.start..self.current];
