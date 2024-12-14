@@ -197,9 +197,7 @@ impl Lexer {
         }
 
         let mut str = String::new();
-        if has_dot {
-            self.current += 1;
-        }
+        self.current += 1;
         let source = &self.source[self.start..self.current];
         for ch in source {
             str.push(*ch);
