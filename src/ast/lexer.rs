@@ -211,13 +211,15 @@ impl Lexer {
             if next.is_ascii_alphanumeric() {
                 self.advance();
             } else {
-                //self.advance();
                 break;
             }
         }
 
         let mut str = String::new();
-        self.current += 1;
+
+        if !self.source[self.current].is_whitespace() {
+            self.current += 1;
+        }
         let source = &self.source[self.start..self.current];
         for ch in source {
             str.push(*ch);
