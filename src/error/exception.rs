@@ -1,4 +1,4 @@
-use std::{error, error::Error, fmt};
+use core::{error::Error, fmt};
 
 pub trait Exception: Error {
     /// Returns the position at which the error occured
@@ -12,7 +12,9 @@ pub struct SourceException {
 }
 
 impl SourceException {
-    pub fn new(pos: (usize, usize), message: String) -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new(pos: (usize, usize), message: String) -> Self {
         Self { pos, message }
     }
 }
@@ -23,7 +25,7 @@ impl fmt::Display for SourceException {
     }
 }
 
-impl error::Error for SourceException {}
+impl Error for SourceException {}
 
 impl Exception for SourceException {
     fn at(&self) -> (usize, usize) {

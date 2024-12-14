@@ -5,6 +5,7 @@ use std::{
 
 use super::Exception;
 
+#[derive(Default)]
 pub struct Handler {
     source_file: &'static str,
     error_counter: usize,
@@ -13,19 +14,21 @@ pub struct Handler {
 static ERROR_LOCK: LazyLock<Mutex<Handler>> = LazyLock::new(|| Mutex::new(Handler::new()));
 
 impl Handler {
-    pub fn new() -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new() -> Self {
         Self {
             source_file: "none",
             error_counter: 0,
         }
     }
 
-    pub fn lock<'a>() -> MutexGuard<'a, Handler> {
+    pub fn lock<'a>() -> MutexGuard<'a, Self> {
         ERROR_LOCK.clear_poison();
         ERROR_LOCK.lock().unwrap()
     }
 
-    pub fn throw(&mut self, error: impl Exception) {
+    pub fn throw<T: Exception>(&mut self, error: &T) {
         self.error_counter += 1;
 
         if self.error_counter >= 20 {

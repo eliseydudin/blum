@@ -1,6 +1,7 @@
 use super::token::TokenType;
 
 #[derive(PartialEq, Debug)]
+#[non_exhaustive]
 pub struct Binary {
     pub left: Box<Expr>,
     pub right: Box<Expr>,
@@ -8,6 +9,7 @@ pub struct Binary {
 }
 
 #[derive(PartialEq, Debug)]
+#[non_exhaustive]
 pub enum Value {
     Int(i128),
     String(String),
@@ -15,6 +17,7 @@ pub enum Value {
 }
 
 #[derive(PartialEq, Debug)]
+#[non_exhaustive]
 pub enum Expr {
     Binary(Binary),
     Value(Value),
