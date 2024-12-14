@@ -57,9 +57,8 @@ impl Lexer {
             lexeme.push(*ch)
         }
 
-        let len = lexeme.len();
-
-        let new_token = Token::new(ttype, lexeme, self.line, self.pos - len, data);
+        //let len = lexeme.len();
+        let new_token = Token::new(ttype, lexeme, self.line, self.pos /*+ 1 - len*/, data);
         self.tokens.push(new_token);
     }
 
