@@ -1,4 +1,5 @@
-#[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TokenType {
     LeftParen,
     RightParen,
@@ -45,7 +46,7 @@ pub enum TokenType {
     Eof,
 }
 
-impl<'a> TryInto<TokenType> for &'a str {
+impl TryInto<TokenType> for &str {
     type Error = ();
 
     fn try_into(self) -> Result<TokenType, Self::Error> {
@@ -67,6 +68,7 @@ impl<'a> TryInto<TokenType> for &'a str {
     }
 }
 
+#[non_exhaustive]
 #[derive(Debug, Clone)]
 pub struct Token {
     pub ttype: TokenType,
@@ -77,6 +79,8 @@ pub struct Token {
 }
 
 impl Token {
+    #[inline]
+    #[must_use]
     pub const fn new(
         ttype: TokenType,
         lexeme: String,
@@ -88,8 +92,8 @@ impl Token {
             ttype,
             lexeme,
             line,
-            literal,
             pos,
+            literal,
         }
     }
 }

@@ -12,6 +12,8 @@ pub struct Lexer {
 }
 
 impl Lexer {
+    #[inline]
+    #[must_use]
     pub fn new(source: &str) -> Self {
         let source: Vec<char> = source.chars().collect();
 
@@ -26,6 +28,7 @@ impl Lexer {
         }
     }
 
+    #[must_use]
     pub fn lex(mut self) -> Vec<Token> {
         while !self.is_eof() {
             self.scan_token();
@@ -35,18 +38,23 @@ impl Lexer {
         self.tokens
     }
 
+    #[inline]
     pub fn advance(&mut self) -> Option<char> {
         self.current += 1;
         self.pos += 1;
-        self.source.get(self.current - 1).cloned()
+        self.source.get(self.current - 1).copied()
     }
 
+    #[inline]
+    #[must_use]
     pub fn peek(&self) -> Option<char> {
-        self.source.get(self.current + 1).cloned()
+        self.source.get(self.current + 1).copied()
     }
 
+    #[inline]
+    #[must_use]
     pub fn peek_ahead(&self) -> Option<char> {
-        self.source.get(self.current + 2).cloned()
+        self.source.get(self.current + 2).copied()
     }
 
     pub fn add_token(&mut self, ttype: TokenType, data: Option<String>) {
@@ -54,7 +62,7 @@ impl Lexer {
         let text = &self.source[self.start..self.current];
 
         for ch in text {
-            lexeme.push(*ch)
+            lexeme.push(*ch);
         }
 
         //let len = lexeme.len();
@@ -67,12 +75,9 @@ impl Lexer {
     }
 
     pub fn scan_token(&mut self) {
-        let next = match self.advance() {
-            Some(n) => n,
-            None => {
-                self.add_token_small(TokenType::Eof);
-                return;
-            }
+        let Some(next) = self.advance() else {
+            self.add_token_small(TokenType::Eof);
+            return;
         };
 
         match next {
@@ -141,6 +146,8 @@ impl Lexer {
         }
     }
 
+    #[inline]
+    #[must_use]
     pub fn is_eof(&self) -> bool {
         self.current >= self.source.len()
     }
@@ -184,7 +191,7 @@ impl Lexer {
                 self.advance();
             } else if next == '.' {
                 self.throw_exception("Multi dot number literal".to_owned());
-                while self.peek().is_some_and(|f| f.is_whitespace()) || !self.is_eof() {
+                while self.peek().is_some_and(char::is_whitespace) || !self.is_eof() {
                     self.advance();
                 }
                 return;
@@ -235,7 +242,7 @@ impl Lexer {
 
     pub fn throw_exception(&self, message: String) {
         let exception = SourceException::new((self.line, self.pos), message);
-        throw!(exception);
+        throw!(&exception);
     }
 }
 
