@@ -20,6 +20,14 @@ impl Parser {
         }
     }
 
+    pub fn current(&self) -> Option<tk::Token> {
+        self.input.get(self.progress).cloned()
+    }
+
+    pub fn is_at_end(&self) -> bool {
+        self.current().is_none()
+    }
+
     pub fn advance(&mut self) -> Option<tk::Token> {
         self.progress += 1;
         self.input.get(self.progress - 1).cloned()
@@ -38,7 +46,7 @@ impl Parser {
         }
     }
 
-    pub fn finish(self) -> Vec<stmt::Statement> {
+    pub fn parse(self) -> Vec<stmt::Statement> {
         self.ast
     }
 
