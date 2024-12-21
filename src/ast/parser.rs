@@ -65,6 +65,8 @@ impl Parser {
         self.consume(&RightParen, "function parameter list never closed")?;
         let block = self.block()?;
 
+        self.advance();
+
         Ok(Stmt::Fn(name, vec![], Box::new(block[0].clone())))
     }
 

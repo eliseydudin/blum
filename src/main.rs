@@ -15,7 +15,9 @@ fn main() {
                 .unwrap();
 
             let mut lexer = Lexer::new(file_contents);
-            let mut parser = Parser::new(lexer.scan_tokens());
+            let tokens = lexer.scan_tokens();
+            //println!("{tokens:#?}");
+            let mut parser = Parser::new(tokens);
             let ast = parser.parse();
 
             println!("{ast:#?}")
