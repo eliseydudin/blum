@@ -340,3 +340,28 @@ impl Parser {
         self.tokens[self.current - 1].clone()
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+    use crate::ast::{lexer::Lexer, Stmt};
+
+    use super::Parser;
+
+    #[test]
+    fn basic_parser_test() {
+        let source = include_str!("../../test.blum");
+        let mut lexer = Lexer::new(source.to_owned());
+        let mut parser = Parser::new(lexer.scan_tokens());
+        let ast = parser.parse();
+
+        match ast[0] {
+            Stmt::Fn(_, _, _) => (),
+            _ => panic!(),
+        }
+
+        match ast[1] {
+            Stmt::Let(_, _) => (),
+            _ => panic!(),
+        }
+    }
+}
