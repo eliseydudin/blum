@@ -1,5 +1,5 @@
 use ast::{lexer::Lexer, parser::Parser};
-use std::env::args;
+use std::{env::args, process::exit};
 
 pub mod ast;
 pub mod error;
@@ -24,6 +24,10 @@ fn main() {
             //println!("{tokens:#?}");
             let mut parser = Parser::new(tokens);
             let ast = parser.parse();
+
+            if Handler::errors_occured() {
+                exit(10);
+            }
 
             println!("{ast:#?}")
         }

@@ -39,4 +39,11 @@ impl Handler {
     pub fn set_source_file(path: String) {
         HANDLER_LOCK.get_or_init(|| Handler::new(path));
     }
+
+    pub fn errors_occured() -> bool {
+        match HANDLER_LOCK.get() {
+            Some(handle) => handle.error_counter.get() > 0,
+            None => true,
+        }
+    }
 }
