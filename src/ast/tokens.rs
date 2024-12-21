@@ -1,5 +1,4 @@
 use std::fmt;
-use std::num::NonZeroUsize;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
@@ -44,16 +43,11 @@ pub struct Token {
     pub r#type: TokenType,
     pub lexeme: String,
     pub literal: Option<Literal>,
-    pub line: NonZeroUsize,
+    pub line: usize,
 }
 
 impl Token {
-    pub fn new(
-        r#type: TokenType,
-        lexeme: &str,
-        literal: Option<Literal>,
-        line: NonZeroUsize,
-    ) -> Self {
+    pub fn new(r#type: TokenType, lexeme: &str, literal: Option<Literal>, line: usize) -> Self {
         Self {
             r#type,
             lexeme: lexeme.to_owned(),

@@ -1,6 +1,5 @@
 use super::{Literal, Token, TokenType};
 use std::collections::HashMap;
-use std::num::NonZeroUsize;
 use std::str::FromStr;
 use std::sync::LazyLock;
 use TokenType::{
@@ -30,7 +29,7 @@ pub struct Lexer {
     tokens: Vec<Token>,
     start: usize,
     current: usize,
-    line: NonZeroUsize,
+    line: usize,
 }
 
 impl Lexer {
@@ -40,7 +39,7 @@ impl Lexer {
             tokens: Vec::new(),
             start: 0,
             current: 0,
-            line: NonZeroUsize::new(1).unwrap(),
+            line: 1,
         }
     }
 
@@ -203,7 +202,7 @@ impl Lexer {
     }
 
     fn increment_line(&mut self) {
-        self.line = NonZeroUsize::new(self.line.get() + 1).unwrap();
+        self.line += 1;
     }
 }
 

@@ -1,5 +1,5 @@
 use ast::{lexer::Lexer, parser::Parser};
-use std::{env::args, num::NonZero};
+use std::env::args;
 
 pub mod ast;
 
@@ -10,10 +10,7 @@ fn main() {
         Some(path) => {
             let file_contents = std::fs::read_to_string(path.clone())
                 .inspect_err(|e| {
-                    crate::error(
-                        NonZero::new(1).unwrap(),
-                        format!("Error opening the file at `{path}`, error: {e}"),
-                    )
+                    crate::error(1, format!("Error opening the file at `{path}`, error: {e}"))
                 })
                 .unwrap();
 
@@ -23,11 +20,11 @@ fn main() {
 
             println!("{ast:#?}")
         }
-        None => crate::error(NonZero::new(1).unwrap(), "No source file given"),
+        None => crate::error(1, "No source file given"),
     }
 }
 
-fn error(pos: NonZero<usize>, message: impl Into<String>) {
+fn error(pos: usize, message: impl Into<String>) {
     let message: String = message.into();
     println!("[line {pos}] error: {message}")
 }
