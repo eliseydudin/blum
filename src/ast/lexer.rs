@@ -25,7 +25,7 @@ static KEYWORDS: LazyLock<HashMap<String, TokenType>> = LazyLock::new(|| {
 });
 
 pub struct Lexer {
-    source: String,
+    source: Vec<char>,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
@@ -34,6 +34,11 @@ pub struct Lexer {
 
 impl Lexer {
     pub fn new(source: String) -> Self {
+        let src = source.chars();
+        let mut source = vec![];
+        for ch in src {
+            source.push(ch)
+        }
         Self {
             source,
             tokens: Vec::new(),
@@ -101,6 +106,7 @@ impl Lexer {
             ' ' | '\r' | '\t' => {}
             '\n' => self.increment_line(),
             '"' => self.string(),
+            '\0' => self.add_token(Eof),
             _ => {
                 if c.is_digit(10) {
                     self.number()
@@ -115,14 +121,14 @@ impl Lexer {
 
     fn advance(&mut self) -> char {
         self.current += 1;
-        self.source.chars().nth(self.current - 1).unwrap()
+        self.source.get(self.current - 1).cloned().unwrap_or('\0')
     }
 
     fn peek(&self) -> char {
         if self.is_at_end() {
             '\0'
         } else {
-            self.source.chars().nth(self.current).unwrap()
+            self.source.get(self.current).cloned().unwrap()
         }
     }
 
@@ -130,7 +136,7 @@ impl Lexer {
         if (self.current + 1) >= self.source.len() {
             '\0'
         } else {
-            self.source.chars().nth(self.current + 1).unwrap()
+            self.source.get(self.current + 1).cloned().unwrap()
         }
     }
 
@@ -139,12 +145,12 @@ impl Lexer {
     }
 
     fn add_full_token(&mut self, type_: TokenType, literal: Option<Literal>) {
-        let token = Token::new(
-            type_,
-            &self.source[self.start..self.current],
-            literal,
-            self.line,
-        );
+        let mut lexeme_dyn = String::new();
+        for i in self.start..self.current {
+            lexeme_dyn.push(self.source[i]);
+        }
+
+        let token = Token::new(type_, &lexeme_dyn, literal, self.line);
         self.tokens.push(token);
     }
 
@@ -152,7 +158,7 @@ impl Lexer {
         if self.is_at_end() {
             return true;
         }
-        if expected == self.source.chars().nth(self.current).unwrap() {
+        if expected == self.source.get(self.current).cloned().unwrap() {
             self.current += 1;
             true
         } else {
@@ -171,7 +177,13 @@ impl Lexer {
             crate::error(self.line, "unterminated string");
         }
         self.advance();
-        let literal = Literal::String(self.source[(self.start + 1)..(self.current - 1)].to_owned());
+
+        let mut literal = String::new();
+        for i in (self.start + 1)..(self.current - 1) {
+            literal.push(self.source[i]);
+        }
+
+        let literal = Literal::String(literal);
         self.add_full_token(TokenType::String, Some(literal));
     }
 
@@ -185,8 +197,13 @@ impl Lexer {
                 self.advance();
             }
         }
-        let literal =
-            Literal::Number(f64::from_str(&self.source[(self.start)..(self.current)]).unwrap());
+
+        let mut literal = String::new();
+        for i in self.start..self.current {
+            literal.push(self.source[i]);
+        }
+
+        let literal = Literal::Number(f64::from_str(&literal).unwrap());
         self.add_full_token(Number, Some(literal));
     }
 
@@ -194,9 +211,12 @@ impl Lexer {
         while is_alphanumeric(self.peek()) {
             self.advance();
         }
-        let text = &self.source[(self.start)..(self.current)];
+        let mut text = String::new();
+        for i in self.start..self.current {
+            text.push(self.source[i]);
+        }
         let type_ = KEYWORDS
-            .get(text)
+            .get(&text)
             .map_or_else(|| Identifier, std::clone::Clone::clone);
         self.add_token(type_);
     }
