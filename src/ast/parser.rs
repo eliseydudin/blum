@@ -1,7 +1,7 @@
 use super::TokenType::{
-    Bang, BangEqual, Class, Else, Eof, Equal, EqualEqual, False, For, Greater, GreaterEqual,
-    Identifier, If, LeftBrace, LeftParen, Less, LessEqual, Let, Minus, Number, Or, Plus, Return,
-    RightBrace, RightParen, Semicolon, Slash, Star, String, True, While,
+    Bang, BangEqual, Else, Eof, Equal, EqualEqual, False, For, Greater, GreaterEqual, Identifier,
+    If, LeftBrace, LeftParen, Less, LessEqual, Let, Minus, Number, Or, Plus, Return, RightBrace,
+    RightParen, Semicolon, Slash, Star, String, True, While,
 };
 use super::{Expr, Stmt};
 use super::{Literal, Token, TokenType};
@@ -277,7 +277,7 @@ impl Parser {
                 return;
             }
             match self.peek().r#type {
-                Class | Let | For | If | While | Return => {
+                Let | For | If | While | Return => {
                     return;
                 }
                 _ => {}

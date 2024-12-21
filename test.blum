@@ -1,7 +1,1 @@
-fn test(a: i32, b: f64) -> i32 {
-    return a + b;
-}
-
-fn main() {
-    print("silly", test(10));
-}
+fn main() {}

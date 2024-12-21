@@ -4,7 +4,7 @@ use std::num::NonZeroUsize;
 use std::str::FromStr;
 use std::sync::LazyLock;
 use TokenType::{
-    And, Bang, BangEqual, Class, Comma, Dot, Else, Eof, Equal, EqualEqual, False, Fn, For, Greater,
+    And, Bang, BangEqual, Comma, Dot, Else, Eof, Equal, EqualEqual, False, Fn, For, Greater,
     GreaterEqual, Identifier, If, LeftBrace, LeftParen, Less, LessEqual, Let, Minus, Number, Or,
     Plus, Return, RightBrace, RightParen, Semicolon, Slash, Star, True, While,
 };
@@ -12,7 +12,6 @@ use TokenType::{
 static KEYWORDS: LazyLock<HashMap<String, TokenType>> = LazyLock::new(|| {
     let mut m = HashMap::new();
     m.insert("and".to_owned(), And);
-    m.insert("class".to_owned(), Class);
     m.insert("else".to_owned(), Else);
     m.insert("false".to_owned(), False);
     m.insert("for".to_owned(), For);
@@ -26,7 +25,7 @@ static KEYWORDS: LazyLock<HashMap<String, TokenType>> = LazyLock::new(|| {
     m
 });
 
-pub struct Scanner {
+pub struct Lexer {
     source: String,
     tokens: Vec<Token>,
     start: usize,
@@ -34,7 +33,7 @@ pub struct Scanner {
     line: NonZeroUsize,
 }
 
-impl Scanner {
+impl Lexer {
     pub fn new(source: String) -> Self {
         Self {
             source,
@@ -187,9 +186,8 @@ impl Scanner {
                 self.advance();
             }
         }
-        let literal = Literal::Number(
-            f64::from_str(&self.source[(self.start + 1)..(self.current - 1)]).unwrap(),
-        );
+        let literal =
+            Literal::Number(f64::from_str(&self.source[(self.start)..(self.current)]).unwrap());
         self.add_full_token(Number, Some(literal));
     }
 
@@ -197,7 +195,7 @@ impl Scanner {
         while is_alphanumeric(self.peek()) {
             self.advance();
         }
-        let text = &self.source[(self.start + 1)..(self.current - 1)];
+        let text = &self.source[(self.start)..(self.current)];
         let type_ = KEYWORDS
             .get(text)
             .map_or_else(|| Identifier, std::clone::Clone::clone);

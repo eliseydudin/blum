@@ -26,7 +26,6 @@ pub enum TokenType {
     String,
     Number,
     And,
-    Class,
     Else,
     False,
     Fn,
