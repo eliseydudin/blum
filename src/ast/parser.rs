@@ -1,7 +1,7 @@
 use super::TokenType::{
-    Bang, BangEqual, Else, Eof, Equal, EqualEqual, False, For, Greater, GreaterEqual, Identifier,
-    If, LeftBrace, LeftParen, Less, LessEqual, Let, Minus, Number, Or, Plus, Return, RightBrace,
-    RightParen, Semicolon, Slash, Star, String, True, While,
+    Bang, BangEqual, Else, Eof, Equal, EqualEqual, False, Fn, For, Greater, GreaterEqual,
+    Identifier, If, LeftBrace, LeftParen, Less, LessEqual, Let, Minus, Number, Or, Plus, Return,
+    RightBrace, RightParen, Semicolon, Slash, Star, String, True, While,
 };
 use super::{Expr, Stmt};
 use super::{Literal, Token, TokenType};
@@ -58,6 +58,16 @@ impl Parser {
         Ok(Stmt::Let(name, initializer))
     }
 
+    fn fn_statement(&mut self) -> Result<Stmt> {
+        let name = self.consume(&Identifier, "expected function name")?;
+        // todo read function params
+        self.consume(&LeftParen, "expected '(' after function identifier")?;
+        self.consume(&RightParen, "function parameter list never closed")?;
+        let block = self.block()?;
+
+        Ok(Stmt::Fn(name, vec![], Box::new(Stmt::Block(block))))
+    }
+
     fn statement(&mut self) -> Result<Stmt> {
         if self.matches(&[For]) {
             self.for_statement()
@@ -67,6 +77,8 @@ impl Parser {
             self.while_statement()
         } else if self.matches(&[LeftBrace]) {
             Ok(Stmt::Block(self.block()?))
+        } else if self.matches(&[Fn]) {
+            self.fn_statement()
         } else {
             self.expression_statement()
         }
@@ -139,14 +151,8 @@ impl Parser {
                 break;
             }
         }
-        self.consume(&RightBrace, "Expect ';' after block.")?;
+        //self.consume(&RightBrace, "Expect ';' after block.")?;
         Ok(statements)
-    }
-
-    pub fn print_statement(&mut self) -> Result<Stmt> {
-        let value = self.expression()?;
-        self.consume(&Semicolon, "Expect ';' after value.")?;
-        Ok(Stmt::Print(value))
     }
 
     fn expression_statement(&mut self) -> Result<Stmt> {
