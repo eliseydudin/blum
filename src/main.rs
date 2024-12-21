@@ -1,5 +1,5 @@
 use ast::{lexer::Lexer, parser::Parser};
-use std::{env::args, process::exit};
+use std::{env::args, fs, process::exit};
 
 pub mod ast;
 pub mod error;
@@ -13,13 +13,16 @@ fn main() {
         Some(path) => {
             Handler::set_source_file(path.clone());
 
-            let file_contents = std::fs::read_to_string(path.clone())
-                .inspect_err(|e| {
-                    crate::error(1, format!("error opening the file at `{path}`, error: {e}"))
+            let file_contents = fs::read_to_string(path.clone())
+                .inspect_err(|err| {
+                    crate::error(
+                        1,
+                        format!("error opening the file at `{path}`, error: {err}"),
+                    );
                 })
                 .unwrap();
 
-            let mut lexer = Lexer::new(file_contents);
+            let mut lexer = Lexer::new(&file_contents);
             let tokens = lexer.scan_tokens();
             //println!("{tokens:#?}");
             let mut parser = Parser::new(tokens);
@@ -29,7 +32,7 @@ fn main() {
                 exit(10);
             }
 
-            println!("{ast:#?}")
+            println!("{ast:#?}");
         }
         None => crate::error(1, "no source file given"),
     }
