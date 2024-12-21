@@ -167,7 +167,7 @@ impl Parser {
             if let Expr::Variable(name) = expr {
                 Ok(Expr::Assign(name, Box::new(value)))
             } else {
-                error(equals.line, "Invalid assignment taarget.");
+                error(equals.line, "Invalid assignment target.");
                 Ok(expr)
             }
         } else {
