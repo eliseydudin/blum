@@ -48,13 +48,13 @@ impl Parser {
     }
 
     fn var_declaration(&mut self) -> Result<Stmt> {
-        let name = self.consume(&Identifier, "Expect variable name.")?;
+        let name = self.consume(&Identifier, "expected variable name.")?;
         let initializer = if self.matches(&[Equal]) {
             self.expression().ok()
         } else {
             None
         };
-        self.consume(&Semicolon, "Expect ';' after variable declaration.")?;
+        self.consume(&Semicolon, "expected ';' after variable declaration.")?;
         Ok(Stmt::Let(name, initializer))
     }
 
@@ -98,13 +98,13 @@ impl Parser {
         } else {
             self.expression()?
         };
-        self.consume(&Semicolon, "Expect ';' after loop condition.")?;
+
         let increment = if self.check(&RightParen) {
             None
         } else {
             self.expression().ok()
         };
-        self.consume(&RightParen, "Expect ')' after for clauses.")?;
+        self.consume(&RightParen, "expected ')' after for clauses")?;
         let mut body = self.statement()?;
         if let Some(increment) = increment {
             body = Stmt::Block(vec![body, Stmt::Expression(increment)]);
@@ -117,17 +117,17 @@ impl Parser {
     }
 
     fn while_statement(&mut self) -> Result<Stmt> {
-        self.consume(&LeftParen, "Expect '(' after 'while'.")?;
+        self.consume(&LeftParen, "expected '(' after 'while'")?;
         let condition = self.expression()?;
-        self.consume(&RightParen, "Expect ')' after condition.")?;
+        self.consume(&RightParen, "expected ')' after the condition")?;
         let body = self.statement()?;
         Ok(Stmt::While(condition, Box::new(body)))
     }
 
     fn if_statement(&mut self) -> Result<Stmt> {
-        self.consume(&LeftParen, "Expect '(' after 'if'.")?;
+        self.consume(&LeftParen, "expected '(' after 'if'")?;
         let condition = self.expression()?;
-        self.consume(&RightParen, "Expect ')' after if condition.")?;
+        self.consume(&RightParen, "expected ')' after if condition")?;
         let then_branch = self.statement()?;
         let else_branch = if self.matches(&[Else]) {
             self.statement().ok()
@@ -157,7 +157,7 @@ impl Parser {
 
     fn expression_statement(&mut self) -> Result<Stmt> {
         let expr = self.expression()?;
-        self.consume(&Semicolon, "Expect ';' after expression.")?;
+        self.consume(&Semicolon, "expected ';' after expression")?;
         Ok(Stmt::Expression(expr))
     }
 
@@ -173,7 +173,7 @@ impl Parser {
             if let Expr::Variable(name) = expr {
                 Ok(Expr::Assign(name, Box::new(value)))
             } else {
-                error(equals.line, "Invalid assignment target.");
+                error(equals.line, "invalid assignment target");
                 Ok(expr)
             }
         } else {
@@ -269,10 +269,10 @@ impl Parser {
         }
         if self.matches(&[LeftParen]) {
             let expr = self.expression()?;
-            self.consume(&RightParen, "Expect `)` after expression")?;
+            self.consume(&RightParen, "expected `)` after expression")?;
             return Ok(Expr::Grouping(Box::new(expr)));
         }
-        crate::error_at_token(&self.peek(), "Expect expression");
+        crate::error_at_token(&self.peek(), "expected expression");
         Err(anyhow!("Parse error"))
     }
 

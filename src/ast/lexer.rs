@@ -107,7 +107,7 @@ impl Lexer {
                 } else if is_alphanumeric(c) {
                     self.identifier()
                 } else {
-                    crate::error(self.line, "Unexpected character")
+                    crate::error(self.line, "unexpected character")
                 }
             }
         }
@@ -168,7 +168,7 @@ impl Lexer {
             self.advance();
         }
         if self.is_at_end() {
-            crate::error(self.line, "Unterminated string.");
+            crate::error(self.line, "unterminated string");
         }
         self.advance();
         let literal = Literal::String(self.source[(self.start + 1)..(self.current - 1)].to_owned());
