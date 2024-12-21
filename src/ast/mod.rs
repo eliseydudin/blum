@@ -5,6 +5,7 @@ pub mod tokens;
 pub use tokens::{Literal, Token, TokenType};
 
 #[derive(PartialEq, Clone, Debug)]
+#[non_exhaustive]
 pub enum Stmt {
     Block(Vec<Stmt>),
     Expression(Expr),
@@ -15,6 +16,7 @@ pub enum Stmt {
 }
 
 #[derive(PartialEq, Clone, Debug)]
+#[non_exhaustive]
 pub enum Expr {
     Assign(Token, Box<Expr>),
     Binary(Box<Expr>, Token, Box<Expr>),

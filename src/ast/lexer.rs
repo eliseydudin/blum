@@ -1,6 +1,7 @@
 use super::{Literal, Token, TokenType};
+use core::clone;
+use core::str::FromStr as _;
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::sync::LazyLock;
 use TokenType::{
     And, Bang, BangEqual, Comma, Dot, Else, Eof, Equal, EqualEqual, False, Fn, For, Greater,
@@ -9,19 +10,19 @@ use TokenType::{
 };
 
 static KEYWORDS: LazyLock<HashMap<String, TokenType>> = LazyLock::new(|| {
-    let mut m = HashMap::new();
-    m.insert("and".to_owned(), And);
-    m.insert("else".to_owned(), Else);
-    m.insert("false".to_owned(), False);
-    m.insert("for".to_owned(), For);
-    m.insert("fn".to_owned(), Fn);
-    m.insert("if".to_owned(), If);
-    m.insert("or".to_owned(), Or);
-    m.insert("return".to_owned(), Return);
-    m.insert("true".to_owned(), True);
-    m.insert("let".to_owned(), Let);
-    m.insert("while".to_owned(), While);
-    m
+    let mut map = HashMap::new();
+    map.insert("and".to_owned(), And);
+    map.insert("else".to_owned(), Else);
+    map.insert("false".to_owned(), False);
+    map.insert("for".to_owned(), For);
+    map.insert("fn".to_owned(), Fn);
+    map.insert("if".to_owned(), If);
+    map.insert("or".to_owned(), Or);
+    map.insert("return".to_owned(), Return);
+    map.insert("true".to_owned(), True);
+    map.insert("let".to_owned(), Let);
+    map.insert("while".to_owned(), While);
+    map
 });
 
 pub struct Lexer {
@@ -33,11 +34,12 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn new(source: String) -> Self {
+    #[must_use]
+    pub fn new(source: &str) -> Self {
         let src = source.chars();
         let mut source = vec![];
         for ch in src {
-            source.push(ch)
+            source.push(ch);
         }
         Self {
             source,
@@ -62,8 +64,8 @@ impl Lexer {
     }
 
     fn scan_token(&mut self) {
-        let c = self.advance();
-        match c {
+        let ch = self.advance();
+        match ch {
             '(' => self.add_token(LeftParen),
             ')' => self.add_token(RightParen),
             '{' => self.add_token(LeftBrace),
@@ -76,15 +78,15 @@ impl Lexer {
             '*' => self.add_token(Star),
             '!' => {
                 let type_ = if self.matches('=') { BangEqual } else { Bang };
-                self.add_token(type_)
+                self.add_token(type_);
             }
             '=' => {
                 let type_ = if self.matches('=') { EqualEqual } else { Equal };
-                self.add_token(type_)
+                self.add_token(type_);
             }
             '<' => {
                 let type_ = if self.matches('=') { LessEqual } else { Less };
-                self.add_token(type_)
+                self.add_token(type_);
             }
             '>' => {
                 let type_ = if self.matches('=') {
@@ -92,7 +94,7 @@ impl Lexer {
                 } else {
                     Greater
                 };
-                self.add_token(type_)
+                self.add_token(type_);
             }
             '/' => {
                 if self.matches('/') {
@@ -108,12 +110,12 @@ impl Lexer {
             '"' => self.string(),
             '\0' => self.add_token(Eof),
             _ => {
-                if c.is_digit(10) {
-                    self.number()
-                } else if is_alphanumeric(c) {
-                    self.identifier()
+                if ch.is_ascii_digit() {
+                    self.number();
+                } else if is_alphanumeric(ch) {
+                    self.identifier();
                 } else {
-                    crate::error(self.line, "unexpected character")
+                    crate::error(self.line, "unexpected character");
                 }
             }
         }
@@ -121,14 +123,14 @@ impl Lexer {
 
     fn advance(&mut self) -> char {
         self.current += 1;
-        self.source.get(self.current - 1).cloned().unwrap_or('\0')
+        self.source.get(self.current - 1).copied().unwrap_or('\0')
     }
 
     fn peek(&self) -> char {
         if self.is_at_end() {
             '\0'
         } else {
-            self.source.get(self.current).cloned().unwrap()
+            self.source.get(self.current).copied().unwrap()
         }
     }
 
@@ -136,7 +138,7 @@ impl Lexer {
         if (self.current + 1) >= self.source.len() {
             '\0'
         } else {
-            self.source.get(self.current + 1).cloned().unwrap()
+            self.source.get(self.current + 1).copied().unwrap()
         }
     }
 
@@ -158,7 +160,7 @@ impl Lexer {
         if self.is_at_end() {
             return true;
         }
-        if expected == self.source.get(self.current).cloned().unwrap() {
+        if expected == self.source.get(self.current).copied().unwrap() {
             self.current += 1;
             true
         } else {
@@ -188,12 +190,12 @@ impl Lexer {
     }
 
     fn number(&mut self) {
-        while self.peek().is_digit(10) {
+        while self.peek().is_ascii_digit() {
             self.advance();
         }
-        if self.peek() == '.' && self.peek_next().is_digit(10) {
+        if self.peek() == '.' && self.peek_next().is_ascii_digit() {
             self.advance();
-            while self.peek().is_digit(10) {
+            while self.peek().is_ascii_digit() {
                 self.advance();
             }
         }
@@ -217,7 +219,7 @@ impl Lexer {
         }
         let type_ = KEYWORDS
             .get(&text)
-            .map_or_else(|| Identifier, std::clone::Clone::clone);
+            .map_or_else(|| Identifier, clone::Clone::clone);
         self.add_token(type_);
     }
 
@@ -226,6 +228,6 @@ impl Lexer {
     }
 }
 
-const fn is_alphanumeric(c: char) -> bool {
-    c.is_ascii_alphanumeric() || c == '_'
+const fn is_alphanumeric(ch: char) -> bool {
+    ch.is_ascii_alphanumeric() || ch == '_'
 }

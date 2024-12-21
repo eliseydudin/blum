@@ -14,7 +14,9 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(tokens: Vec<Token>) -> Self {
+    #[inline]
+    #[must_use]
+    pub const fn new(tokens: Vec<Token>) -> Self {
         Self { tokens, current: 0 }
     }
 
@@ -33,12 +35,13 @@ impl Parser {
 
     fn declaration(&mut self) -> Option<Stmt> {
         if self.matches(&[Let]) {
-            if let Ok(stmt) = self.var_declaration() {
-                Some(stmt)
-            } else {
-                self.synchronize();
-                None
-            }
+            self.var_declaration().map_or_else(
+                |_| {
+                    self.synchronize();
+                    None
+                },
+                Some,
+            )
         } else if let Ok(stmt) = self.statement() {
             Some(stmt)
         } else {
@@ -63,7 +66,7 @@ impl Parser {
         // todo read function params
         self.consume(&LeftParen, "expected '(' after function identifier")?;
         self.consume(&RightParen, "function parameter list never closed")?;
-        let block = self.block()?;
+        let block = self.block();
 
         self.advance();
 
@@ -78,7 +81,7 @@ impl Parser {
         } else if self.matches(&[While]) {
             self.while_statement()
         } else if self.matches(&[LeftBrace]) {
-            Ok(Stmt::Block(self.block()?))
+            Ok(Stmt::Block(self.block()))
         } else if self.matches(&[Fn]) {
             self.fn_statement()
         } else {
@@ -143,7 +146,7 @@ impl Parser {
         ))
     }
 
-    fn block(&mut self) -> Result<Vec<Stmt>> {
+    fn block(&mut self) -> Vec<Stmt> {
         let mut statements = Vec::new();
         loop {
             if let Some(stmt) = self.declaration() {
@@ -154,7 +157,7 @@ impl Parser {
             }
         }
         //self.consume(&RightBrace, "Expect ';' after block.")?;
-        Ok(statements)
+        statements
     }
 
     fn expression_statement(&mut self) -> Result<Stmt> {
@@ -261,10 +264,9 @@ impl Parser {
             return Ok(Expr::Literal(Literal::Bool(true)));
         }
         if self.matches(&[Number, String]) {
-            return Ok(Expr::Literal(match self.previous().literal {
-                Some(l) => l,
-                None => Literal::Nil,
-            }));
+            return Ok(Expr::Literal(
+                self.previous().literal.map_or(Literal::Nil, |lit| lit),
+            ));
         }
         if self.matches(&[Identifier]) {
             return Ok(Expr::Variable(self.previous()));
@@ -350,7 +352,7 @@ pub mod tests {
     #[test]
     fn basic_parser_test() {
         let source = include_str!("../../test.blum");
-        let mut lexer = Lexer::new(source.to_owned());
+        let mut lexer = Lexer::new(source);
         let mut parser = Parser::new(lexer.scan_tokens());
         let ast = parser.parse();
 

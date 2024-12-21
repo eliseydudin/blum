@@ -1,6 +1,7 @@
 use std::fmt;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum TokenType {
     LeftParen,
     RightParen,
@@ -39,6 +40,7 @@ pub enum TokenType {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub struct Token {
     pub r#type: TokenType,
     pub lexeme: String,
@@ -47,6 +49,8 @@ pub struct Token {
 }
 
 impl Token {
+    #[inline]
+    #[must_use]
     pub fn new(r#type: TokenType, lexeme: &str, literal: Option<Literal>, line: usize) -> Self {
         Self {
             r#type,
@@ -64,6 +68,7 @@ impl fmt::Display for Token {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum Literal {
     String(String),
     Number(f64),
