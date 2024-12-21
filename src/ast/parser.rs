@@ -65,7 +65,7 @@ impl Parser {
         self.consume(&RightParen, "function parameter list never closed")?;
         let block = self.block()?;
 
-        Ok(Stmt::Fn(name, vec![], Box::new(Stmt::Block(block))))
+        Ok(Stmt::Fn(name, vec![], Box::new(block[0].clone())))
     }
 
     fn statement(&mut self) -> Result<Stmt> {
