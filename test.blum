@@ -3,3 +3,4 @@ fn main() {
 }
 
 let b = 10.0;
+let c = "test";
